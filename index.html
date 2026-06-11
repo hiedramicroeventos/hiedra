@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hiedra · Micro Eventos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.30.0/tabler-icons.min.css">
+<style>
+:root{--verde:#b8b9a5;--borde:#941c20;--naranja:#c44a12;--crema:#f0dcc3;--mostaza:#d0a03b;--marron:#765035;--azul:#78969a;--bg:#faf8f4;--surface:#fff;--text:#2a1f1a;--tm:#7a6a60;--bl:rgba(148,28,32,0.12);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:228px;min-width:228px;background:var(--borde);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0}
+.s-logo{padding:22px 18px 16px;border-bottom:1px solid rgba(240,220,195,0.15);display:flex;align-items:center;gap:12px}
+.s-logo img{width:42px;height:42px;object-fit:contain;filter:brightness(0) invert(1) opacity(.88)}
+.brand{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:600;color:var(--crema);letter-spacing:3px;line-height:1;text-transform:uppercase}
+.sub{font-size:8px;color:rgba(240,220,195,0.5);letter-spacing:3px;text-transform:uppercase;margin-top:2px}
+.nav{padding:10px 0;flex:1}
+.ni{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;color:rgba(240,220,195,0.6);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;transition:all .2s;border-left:2px solid transparent}
+.ni:hover{color:var(--crema);background:rgba(240,220,195,0.07)}
+.ni.active{color:var(--crema);background:rgba(240,220,195,0.1);border-left-color:var(--crema)}
+.ni i{font-size:16px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--bl);padding:13px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.tt{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:500;color:var(--borde);letter-spacing:1px}
+.content{padding:20px 26px;}
+.page{display:none}.page.active{display:block}
+.btn{background:var(--borde);color:var(--crema);border:none;padding:8px 16px;border-radius:2px;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.btn:hover{background:#7a1519}
+.btn-o{background:transparent;color:var(--borde);border:1px solid var(--borde)}
+.btn-o:hover{background:rgba(148,28,32,0.06)}
+.btn-del{background:transparent;color:var(--tm);border:1px solid rgba(148,28,32,0.15)}
+.btn-del:hover{background:rgba(148,28,32,0.08);color:var(--borde)}
+.btn-sm{padding:5px 10px;font-size:9px}
+.btn-xs{padding:3px 8px;font-size:9px}
+.btn-verde{background:var(--verde);color:var(--text)}
+.btn-verde:hover{background:#a0a18e}
+.fr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card{background:var(--surface);border:1px solid var(--bl);border-radius:2px;padding:18px;margin-bottom:14px}
+.card:last-child{margin-bottom:0}
+.ct{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:500;color:var(--borde);letter-spacing:1.5px;margin-bottom:14px;text-transform:uppercase}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.sc{background:var(--surface);border:1px solid var(--bl);border-radius:2px;padding:15px}
+.sl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);margin-bottom:5px}
+.sv{font-family:'Cormorant Garamond',serif;font-size:29px;font-weight:500;color:var(--borde);line-height:1}
+.ss{font-size:10px;color:var(--tm);margin-top:3px}
+.badge{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 7px;border-radius:1px}
+.bv{background:rgba(184,185,165,0.25);color:#565840}.bb{background:rgba(148,28,32,0.1);color:var(--borde)}
+.bn{background:rgba(196,74,18,0.1);color:var(--naranja)}.bm{background:rgba(208,160,59,0.12);color:#8a6510}.bg{background:rgba(0,0,0,0.06);color:var(--tm)}
+.row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(148,28,32,0.06)}
+.row:last-child{border-bottom:none}
+.rn{font-size:13px;font-weight:500;color:var(--text)}.rs{font-size:11px;color:var(--tm);margin-top:2px}
+.pb{background:rgba(148,28,32,0.1);border-radius:1px;height:3px;margin:7px 0 3px}
+.pf{background:var(--borde);border-radius:1px;height:3px}
+.pl{display:flex;justify-content:space-between;font-size:9px;color:var(--tm)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:7px 10px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);border-bottom:1px solid var(--bl);font-weight:500}
+td{padding:9px 10px;border-bottom:1px solid rgba(148,28,32,0.05);color:var(--text);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(184,185,165,0.06)}
+.eg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.ec{background:var(--surface);border:1px solid var(--bl);border-radius:2px;overflow:hidden}
+.eh{padding:15px}
+.eh.c1{background:var(--naranja)}.eh.c2{background:var(--borde)}.eh.c3{background:var(--marron)}.eh.c4{background:var(--azul)}.eh.c5{background:#8a8b78}
+.en{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--crema);letter-spacing:1px}
+.esub{font-size:9px;color:rgba(240,220,195,0.7);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.eb{padding:13px}
+.em{display:flex;gap:12px;margin-bottom:9px;flex-wrap:wrap}
+.em span{font-size:10px;color:var(--tm);display:flex;align-items:center;gap:3px}
+.em i{font-size:12px}
+.ea{border-style:dashed;display:flex;align-items:center;justify-content:center;min-height:130px;cursor:pointer;flex-direction:column;gap:8px}
+.ea:hover{background:rgba(184,185,165,0.07)}
+.ea i{font-size:22px;color:var(--tm)}
+.ea span{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tm)}
+/* TIMELINE */
+.timeline{position:relative;padding-left:24px;margin-top:8px}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--bl)}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-item:last-child{margin-bottom:0}
+.tl-dot{position:absolute;left:-21px;top:3px;width:10px;height:10px;border-radius:50%;border:2px solid var(--borde);background:var(--surface)}
+.tl-dot.done{background:var(--borde)}
+.tl-dot.urgent{background:var(--naranja);border-color:var(--naranja)}
+.tl-label{font-size:11px;font-weight:500;color:var(--text)}
+.tl-sub{font-size:10px;color:var(--tm);margin-top:1px}
+/* COUNTDOWN */
+.countdown-box{background:var(--borde);border-radius:2px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.cd-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(240,220,195,0.6)}
+.cd-value{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:500;color:var(--crema);line-height:1}
+.cd-unit{font-size:10px;color:rgba(240,220,195,0.6);letter-spacing:1px;text-transform:uppercase}
+.cd-name{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--crema);opacity:.8}
+/* ESTADO BADGE */
+.est-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:1px}
+.est-diseno{background:rgba(120,150,154,0.15);color:var(--azul)}
+.est-confirmado{background:rgba(184,185,165,0.25);color:#565840}
+.est-ejecucion{background:rgba(208,160,59,0.15);color:#8a6510}
+.est-cerrado{background:rgba(148,28,32,0.08);color:var(--borde)}
+/* NOTAS */
+.nota-box{background:rgba(240,220,195,0.3);border-left:2px solid var(--mostaza);border-radius:0 2px 2px 0;padding:10px 12px;margin-bottom:8px;position:relative}
+.nota-text{font-size:12px;color:var(--text);line-height:1.5}
+.nota-meta{font-size:10px;color:var(--tm);margin-top:4px}
+/* CIERRE */
+.cierre-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.cierre-item{background:var(--surface);border:1px solid var(--bl);border-radius:2px;padding:12px;text-align:center}
+.cierre-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tm);margin-bottom:4px}
+.cierre-val{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--borde);font-weight:500}
+.cierre-sub{font-size:10px;color:var(--tm);margin-top:2px}
+.ganancia-pos{color:#3a6b35}
+.ganancia-neg{color:var(--borde)}
+/* PROVEEDORES */
+.prov-list{display:flex;flex-direction:column;gap:14px}
+.prov-card{background:var(--surface);border:1px solid var(--bl);border-radius:2px;overflow:hidden}
+.prov-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--bl);cursor:pointer;transition:background .15s}
+.prov-head:hover{background:rgba(184,185,165,0.07)}
+.prov-av{width:34px;height:34px;border-radius:1px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:500;flex-shrink:0}
+.prov-nm{font-size:13px;font-weight:500;color:var(--text)}
+.prov-sub{font-size:10px;color:var(--tm);margin-top:1px}
+.prov-toggle{margin-left:auto;color:var(--tm);font-size:14px;transition:transform .2s}
+.prov-toggle.open{transform:rotate(180deg)}
+.prov-items{display:none;border-top:1px solid var(--bl)}
+.prov-items.open{display:block}
+.prov-item-row{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(148,28,32,0.05);transition:background .15s}
+.prov-item-row:last-child{border-bottom:none}
+.prov-item-row:hover{background:rgba(184,185,165,0.06)}
+.prov-item-main{flex:1}
+.prov-item-tipo{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px}
+.prov-item-desc{font-size:11px;color:var(--tm);line-height:1.5;margin-bottom:4px}
+.prov-item-tags{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.pi-tag{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:1px;background:rgba(184,185,165,0.2);color:#565840}
+.pi-tag-aprov{background:rgba(184,185,165,0.3);color:#3a4030}
+.pi-tag-eval{background:rgba(196,74,18,0.1);color:var(--naranja)}
+.prov-item-right{text-align:right;flex-shrink:0;min-width:90px}
+.pi-precio{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:var(--borde)}
+.pi-pax{font-size:10px;color:var(--tm);margin-top:1px}
+.prov-item-actions{display:flex;gap:4px;align-items:flex-start;flex-shrink:0}
+.prov-add-item{display:flex;align-items:center;gap:6px;padding:8px 16px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tm);cursor:pointer;border-top:1px dashed var(--bl);transition:background .15s}
+.prov-add-item:hover{background:rgba(184,185,165,0.07);color:var(--borde)}
+.prov-add-item i{font-size:13px}
+.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-chip{font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:1px;border:1px solid var(--bl);background:var(--surface);color:var(--tm);cursor:pointer;transition:all .15s}
+.filter-chip.active{background:var(--borde);color:var(--crema);border-color:var(--borde)}
+.search-input{flex:1;min-width:160px;padding:6px 12px;border:1px solid var(--bl);border-radius:2px;font-size:12px;font-family:'Jost',sans-serif;color:var(--text);background:var(--surface);outline:none}
+.search-input:focus{border-color:var(--borde)}
+/* PRESUPUESTO */
+.cost-item{border:1px solid var(--bl);border-radius:2px;padding:12px 14px;margin-bottom:8px;background:var(--surface)}
+.cost-item:last-child{margin-bottom:0}
+.cost-item-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.cost-item-left{flex:1}
+.cost-item-desc{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.cost-item-detalle{font-size:11px;color:var(--tm);margin-bottom:5px;font-style:italic}
+.cost-item-tags{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cost-tag{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:1px;background:rgba(184,185,165,0.2);color:#565840}
+.cost-tag-mk{background:rgba(208,160,59,0.15);color:#8a6510}
+.cost-tag-hi{background:rgba(148,28,32,0.08);color:var(--borde)}
+.cost-item-right{text-align:right;flex-shrink:0}
+.cost-costo{font-size:10px;color:var(--tm);text-decoration:line-through}
+.cost-final{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--borde)}
+.cost-markup-badge{font-size:9px;color:var(--mostaza)}
+.cost-section-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bl);display:flex;justify-content:space-between;align-items:center}
+.cost-section{margin-bottom:16px}
+.cost-total-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--bl);padding-top:10px;margin-top:6px}
+.rb{background:var(--borde);border-radius:2px;padding:15px;margin-top:13px}
+.rg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.rl{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(240,220,195,0.55);margin-bottom:3px;text-align:center}
+.rv{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--crema);font-weight:500;text-align:center}
+.scg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.scc{border:1px solid var(--bl);border-radius:2px;padding:10px;text-align:center}
+.scl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tm);margin-bottom:3px}
+.scp{font-size:10px;color:var(--tm);margin-bottom:5px}
+.scv{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--borde);font-weight:500}
+.scg2{font-size:10px;color:var(--tm);margin-top:2px}
+/* INVENTARIO */
+.ic{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--tm);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.ic::after{content:'';flex:1;height:1px;background:var(--bl)}
+.ig{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.ii{border:1px solid var(--bl);border-radius:2px;padding:10px 12px;background:var(--surface)}
+.in{font-size:12px;color:var(--text);margin-bottom:2px}.id2{font-size:10px;color:var(--tm);margin-bottom:6px}
+.ip{font-size:13px;font-weight:500;color:var(--borde)}.ist{font-size:9px;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.am{color:#565840}.na{color:var(--naranja)}
+.dots{display:flex;gap:3px;margin-top:5px}
+.dot{width:7px;height:7px;border-radius:50%}
+.don{background:var(--borde)}.doff{background:rgba(148,28,32,0.15)}
+.ii-actions{display:flex;gap:4px;margin-top:8px}
+/* CHECKLIST */
+.cl{list-style:none}
+.cl li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(148,28,32,0.06);font-size:12px}
+.cl li:last-child{border-bottom:none}
+.chk{width:15px;height:15px;border:1px solid var(--bl);border-radius:1px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
+.chk.done{background:var(--borde);border-color:var(--borde)}
+.chk.done::after{content:'';width:7px;height:4px;border-left:1.5px solid white;border-bottom:1.5px solid white;transform:rotate(-45deg) translateY(-1px)}
+.ct2{text-decoration:line-through;color:var(--tm)}
+.ca{font-size:10px;color:var(--tm);margin-left:auto}
+/* INPUTS */
+input,select,textarea{border:1px solid var(--bl);border-radius:2px;padding:6px 10px;font-family:'Jost',sans-serif;font-size:12px;color:var(--text);background:var(--surface);outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--borde)}
+select.esel{border:1px solid var(--bl);padding:6px 10px;font-size:11px;color:var(--tm);background:var(--surface);border-radius:2px;margin-bottom:14px;cursor:pointer}
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(42,31,26,0.55);display:none;align-items:center;justify-content:center;z-index:100}
+.mo.open{display:flex}
+.md{background:var(--surface);border-radius:2px;padding:24px;width:500px;max-height:90vh;overflow-y:auto;border:1px solid var(--bl)}
+.md h3{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--borde);letter-spacing:1px;margin-bottom:16px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tm);margin-bottom:4px}
+.fg input,.fg select,.fg textarea{width:100%}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.mf{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--bl)}
+.mf-right{display:flex;gap:8px}
+.confirm-del{background:rgba(148,28,32,0.08);border:1px solid rgba(148,28,32,0.2);border-radius:2px;padding:10px 12px;font-size:11px;color:var(--borde);margin-bottom:12px;display:none}
+.confirm-del.show{display:block}
+.mk-preview{background:rgba(208,160,59,0.08);border:1px solid rgba(208,160,59,0.2);border-radius:2px;padding:8px 12px;font-size:11px;color:#8a6510;margin-top:8px;display:flex;justify-content:space-between}
+.mk-preview span{font-weight:500}
+.onda-box{background:rgba(184,185,165,0.12);border-radius:2px;padding:8px 10px;font-size:11px;color:var(--tm);font-style:italic;margin-top:6px}
+.inv-check-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:200px;overflow-y:auto;border:1px solid var(--bl);border-radius:2px;padding:8px}
+.inv-check-item{display:flex;align-items:center;gap:6px;font-size:11px;padding:4px 6px;border-radius:1px;cursor:pointer}
+.inv-check-item:hover{background:rgba(184,185,165,0.1)}
+.inv-check-item input[type=checkbox]{width:13px;height:13px;accent-color:var(--borde);cursor:pointer}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:rgba(148,28,32,0.2);border-radius:2px}
+</style>
+<!-- v20260611012329 -->
+</head>
+<body>
+<!-- LOGIN -->
+<div id="login-screen" style="position:fixed;inset:0;background:var(--borde);display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div style="text-align:center;padding:40px;width:320px">
+    <img src="data:image/png;base64,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" alt="Hiedra" style="width:70px;height:70px;object-fit:contain;filter:brightness(0) invert(1) opacity(.9);margin-bottom:20px">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--crema);letter-spacing:4px;text-transform:uppercase;margin-bottom:4px">Hiedra</div>
+    <div style="font-size:9px;color:rgba(240,220,195,0.5);letter-spacing:3px;text-transform:uppercase;margin-bottom:32px">Micro Eventos &middot; Tandil</div>
+    <input type="password" id="login-pass" placeholder="Contrasena" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding:12px 16px;border:1px solid rgba(240,220,195,0.3);border-radius:2px;background:rgba(240,220,195,0.08);color:var(--crema);font-family:'Jost',sans-serif;font-size:14px;outline:none;text-align:center;letter-spacing:2px;margin-bottom:10px">
+    <div id="login-error" style="color:var(--naranja);font-size:11px;margin-bottom:10px;display:none">Contrasena incorrecta</div>
+    <button onclick="doLogin()" style="width:100%;padding:12px;background:var(--crema);color:var(--borde);border:none;border-radius:2px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-weight:500">Entrar</button>
+  </div>
+</div>
+<div id="app-wrapper" style="display:none">
+<div class="app">
+  <div class="sidebar">
+    <div class="s-logo">
+      <img src="data:image/png;base64,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" alt="Hiedra" width="42" height="42">
+      <div><div class="brand">Hiedra</div><div class="sub">Micro Eventos · Tandil</div></div>
+    </div>
+    <nav class="nav">
+      <div class="ni active" onclick="show('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+      <div class="ni" onclick="show('eventos')"><i class="ti ti-calendar-event"></i> Eventos</div>
+      <div class="ni" onclick="show('asistentes')"><i class="ti ti-users"></i> Asistentes</div>
+      <div class="ni" onclick="show('presupuesto')"><i class="ti ti-calculator"></i> Presupuesto</div>
+      <div class="ni" onclick="show('proveedores')"><i class="ti ti-building-store"></i> Proveedores</div>
+      <div class="ni" onclick="show('inventario')"><i class="ti ti-package"></i> Inventario</div>
+      <div class="ni" onclick="show('checklist')"><i class="ti ti-checklist"></i> Checklist</div>
+    </nav>
+  </div>
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="p-dashboard" class="page active">
+      <div class="topbar"><div class="tt">Bienvenida, Trini &#127807;</div><button class="btn" onclick="openM('ev',null)">+ Nuevo evento</button></div>
+      <div class="content">
+        <div class="sg" id="dash-stats"></div>
+        <div class="two">
+          <div>
+            <div class="card"><div class="ct">Próximos eventos</div><div id="dash-eventos"></div></div>
+            <div class="card"><div class="ct">Tareas urgentes</div><div id="dash-tasks"></div></div>
+          </div>
+          <div>
+            <div class="card"><div class="ct">Notas rápidas</div><div id="dash-notas"></div><button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="openM('nota',null)">+ Nota rápida</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENTOS -->
+    <div id="p-eventos" class="page">
+      <div class="topbar"><div class="tt">Eventos</div><button class="btn" onclick="openM('ev',null)">+ Nuevo evento</button></div>
+      <div class="content"><div class="eg" id="ev-grid"></div></div>
+    </div>
+
+    <!-- EVENTO DETALLE -->
+    <div id="p-evdetalle" class="page">
+      <div class="topbar">
+        <div class="fr"><button class="btn btn-o btn-sm" onclick="show('eventos')"><i class="ti ti-arrow-left"></i></button><div class="tt" id="evd-title">Evento</div></div>
+        <div class="fr">
+          <div style="display:flex;gap:6px">
+            <div class="filter-chip active" id="evd-tab-res" onclick="setEvdTab('resumen',this)">Resumen</div>
+            <div class="filter-chip" id="evd-tab-pres" onclick="setEvdTab('presupuesto',this)">Presupuesto</div>
+            <div class="filter-chip" id="evd-tab-flujo" onclick="setEvdTab('flujo',this)">Caja</div>
+            <div class="filter-chip" id="evd-tab-liq" onclick="setEvdTab('liquidacion',this)">Liquidación</div>
+          </div>
+          <button class="btn btn-o btn-sm" onclick="openM('ev',_currentEvId)"><i class="ti ti-pencil"></i> Editar</button>
+          <button class="btn" onclick="openM('cierre',_currentEvId)" id="btn-cierre">Cerrar evento</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="evd-content"></div>
+        <div id="evd-flujo" style="display:none"></div>
+        <div id="evd-presupuesto" style="display:none"></div>
+        <div id="evd-liquidacion" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ASISTENTES -->
+    <div id="p-asistentes" class="page">
+      <div class="topbar"><div class="tt">Asistentes</div><button class="btn" onclick="openM('as',null)">+ Agregar</button></div>
+      <div class="content">
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
+          <select class="esel" id="as-sel" onchange="rAs()" style="margin-bottom:0;flex:1;min-width:200px"></select>
+          <input type="text" id="as-search" placeholder="Buscar por nombre..." oninput="rAs()" style="flex:1;min-width:160px;padding:6px 12px;border:1px solid var(--bl);border-radius:2px;font-size:12px">
+        </div>
+        <div class="card">
+          <div class="tw"><table><thead><tr><th>Nombre</th><th>Evento</th><th>Contacto</th><th>Estado</th><th>Pago</th><th>Nota</th><th></th></tr></thead><tbody id="as-body"></tbody></table></div>
+          <div id="as-stats" style="margin-top:12px;display:flex;gap:16px;font-size:11px;color:var(--tm)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESUPUESTO -->
+    <div id="p-presupuesto" class="page">
+      <div class="topbar">
+        <div class="tt">Presupuesto & Caja</div>
+        <div class="fr">
+          <div style="display:flex;gap:6px">
+            <div class="filter-chip active" id="pr-tab-mes" onclick="setPrTab('mes',this)">Resumen del mes</div>
+            <div class="filter-chip" id="pr-tab-ev" onclick="setPrTab('evento',this)">Por evento</div>
+          </div>
+          <button class="btn" onclick="openM('costo',null)" id="btn-add-costo" style="display:none">+ Agregar ítem</button>
+        </div>
+      </div>
+      <div class="content">
+        <!-- RESUMEN MES -->
+        <div id="pr-panel-mes">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+            <button onclick="cambiarMes(-1)" class="btn btn-o btn-sm"><i class="ti ti-chevron-left"></i></button>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--borde);letter-spacing:1px;flex:1;text-align:center" id="pr-mes-label">—</div>
+            <button onclick="cambiarMes(1)" class="btn btn-o btn-sm"><i class="ti ti-chevron-right"></i></button>
+          </div>
+          <div id="pr-mes-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px"></div>
+          <div class="card">
+            <div class="ct">Ganancia por evento</div>
+            <div id="pr-mes-eventos"></div>
+          </div>
+        </div>
+        <!-- POR EVENTO -->
+        <div id="pr-panel-ev" style="display:none">
+          <select class="esel" id="pr-sel" onchange="rPres()"></select>
+          <div class="two">
+          <div>
+            <div class="card">
+              <div class="ct">Ítems del presupuesto</div>
+              <div id="pr-costos"></div>
+              <div class="cost-total-row"><span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tm)">Total con markups</span><span style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--text);font-weight:500" id="pr-total">$0</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="ct">Resultado</div>
+              <div class="rb"><div class="rg">
+                <div><div class="rl">Costo base</div><div class="rv" id="r-costo">$0</div></div>
+                <div><div class="rl">Precio/persona</div><div class="rv" id="r-precio">$0</div></div>
+                <div><div class="rl">Ganancia total</div><div class="rv" id="r-gan" style="color:var(--mostaza)">$0</div></div>
+              </div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+                <div style="background:rgba(208,160,59,0.1);border-radius:2px;padding:10px;text-align:center">
+                  <div style="font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#8a6510;margin-bottom:3px">Fondo Hiedra</div>
+                  <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:#8a6510;font-weight:500" id="r-fondo">$0</div>
+                </div>
+                <div style="background:rgba(58,107,53,0.08);border-radius:2px;padding:10px;text-align:center">
+                  <div style="font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#3a6b35;margin-bottom:3px">Para vos</div>
+                  <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:#3a6b35;font-weight:500" id="r-personal">$0</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="ct">Escenarios</div>
+              <div class="scg">
+                <div class="scc"><div class="scl">Lleno</div><div class="scp" id="sc-pf">—</div><div class="scv" id="sc-vf">$0</div><div class="scg2" id="sc-gf"></div></div>
+                <div class="scc" style="border-color:var(--verde);background:rgba(184,185,165,0.08)"><div class="scl">70%</div><div class="scp" id="sc-p7">—</div><div class="scv" id="sc-v7">$0</div><div class="scg2" id="sc-g7"></div></div>
+                <div class="scc"><div class="scl">50%</div><div class="scp" id="sc-p5">—</div><div class="scv" id="sc-v5">$0</div><div class="scg2" id="sc-g5"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div><!-- end pr-panel-ev -->
+      </div>
+    </div>
+
+    <!-- PROVEEDORES -->
+    <div id="p-proveedores" class="page">
+      <div class="topbar"><div class="tt">Proveedores</div>
+        <div class="fr">
+          <button class="btn btn-o btn-sm" onclick="openM('prov',null)">+ Proveedor</button>
+          <button class="btn" onclick="openM('pitem',null)">+ Ítem de menú</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="filter-bar">
+          <input class="search-input" id="prov-search" placeholder="Buscar..." oninput="rProv()">
+          <div class="filter-chip active" onclick="setFilter('todos',this)">Todos</div>
+          <div class="filter-chip" onclick="setFilter('Catering',this)">Catering</div>
+          <div class="filter-chip" onclick="setFilter('Pasteleria',this)">Pastelería</div>
+          <div class="filter-chip" onclick="setFilter('Panificados',this)">Panificados</div>
+          <div class="filter-chip" onclick="setFilter('Alimentos',this)">Alimentos</div>
+          <div class="filter-chip" onclick="setFilter('Ambientacion',this)">Deco</div>
+        </div>
+        <div class="prov-list" id="prov-list"></div>
+      </div>
+    </div>
+
+    <!-- INVENTARIO -->
+    <div id="p-inventario" class="page">
+      <div class="topbar"><div class="tt">Inventario</div><button class="btn" onclick="openM('inv',null)">+ Agregar ítem</button></div>
+      <div class="content"><div class="card" id="inv-c"></div></div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div id="p-checklist" class="page">
+      <div class="topbar">
+        <div class="tt">Checklist</div>
+        <div class="fr">
+          <div style="display:flex;gap:6px">
+            <div class="filter-chip active" id="cl-f-pend" onclick="setCLFilter('pendientes',this)">Pendientes</div>
+            <div class="filter-chip" id="cl-f-todas" onclick="setCLFilter('todas',this)">Todas</div>
+            <div class="filter-chip" id="cl-f-done" onclick="setCLFilter('listas',this)">Listas</div>
+          </div>
+          <button class="btn" onclick="openM('task',null)">+ Nueva tarea</button>
+        </div>
+      </div>
+      <div class="content">
+        <div id="cl-c"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALES -->
+<div class="mo" id="m-ev" onclick="closeBg(event,'m-ev')"><div class="md">
+  <h3 id="m-ev-title">Nuevo Evento</h3>
+  <div class="confirm-del" id="del-ev-confirm">&#9888; ¿Eliminar este evento y todo lo asociado? Clic de nuevo para confirmar.</div>
+  <div class="fg"><label>Nombre</label><input type="text" id="ev-n"></div>
+  <div class="frow"><div class="fg"><label>Fecha</label><input type="date" id="ev-f"></div><div class="fg"><label>Horario</label><input type="time" id="ev-h" value="19:00"></div></div>
+  <div class="frow"><div class="fg"><label>Lugar</label><input type="text" id="ev-l"></div><div class="fg"><label>Capacidad máx.</label><input type="number" id="ev-c" value="30" min="1"></div></div>
+  <div class="fg"><label>Link Google Maps (opcional)</label><input type="url" id="ev-maps" placeholder="https://maps.google.com/..."></div>
+  <div class="frow">
+    <div class="fg"><label>Estado</label><select id="ev-est"><option value="diseno">En diseño</option><option value="confirmado">Confirmado</option><option value="ejecucion">En ejecución</option><option value="cerrado">Cerrado</option></select></div>
+    <div class="fg"><label>Tipo de evento</label><select id="ev-tipo" onchange="toggleEvTipo()"><option value="privado">Privado — cliente paga todo</option><option value="abierto">Abierto — venta de entradas</option></select></div>
+  </div>
+  <div id="ev-abierto-fields" style="display:none">
+    <div class="frow">
+      <div class="fg"><label>Precio de entrada ($)</label><input type="number" id="ev-precio-entrada" value="0" min="0"></div>
+      <div class="fg"><label>% al Fondo Hiedra (de la ganancia)</label><input type="number" id="ev-pct-fondo" value="25" min="0" max="100"></div>
+    </div>
+  </div>
+  <div class="fg"><label>Co-organizadoras</label><input type="text" id="ev-coorg" placeholder="Flor Dannunzio..."></div>
+  <div style="background:rgba(208,160,59,0.06);border:1px solid rgba(208,160,59,0.2);border-radius:2px;padding:12px;margin-bottom:12px">
+    <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#8a6510;margin-bottom:10px">Distribución de la ganancia</div>
+    <div style="font-size:11px;color:var(--tm);margin-bottom:8px">Podés poner % o monto fijo. Ej: "25%" o "$50.000"</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div class="fg" style="margin-bottom:0"><label>Fondo Hiedra</label><input type="text" id="ev-dist-fondo" placeholder="25%" style="width:100%"></div>
+      <div class="fg" style="margin-bottom:0"><label>Co-organizadora</label><input type="text" id="ev-dist-coorg" placeholder="37.5%" style="width:100%"></div>
+      <div class="fg" style="margin-bottom:0"><label>Hiedra (vos)</label><input type="text" id="ev-dist-hiedra" placeholder="37.5%" style="width:100%"></div>
+    </div>
+  </div>
+  <div class="fg"><label>Temática / descripción</label><textarea id="ev-d" rows="2"></textarea></div>
+  <input type="hidden" id="ev-id">
+  <div class="mf">
+    <button class="btn btn-del btn-sm" id="btn-del-ev" onclick="confirmDel('ev')" style="display:none"><i class="ti ti-trash"></i> Eliminar</button>
+    <div class="mf-right"><button class="btn btn-o btn-sm" onclick="closeM('m-ev')">Cancelar</button><button class="btn btn-sm" onclick="saveEv()">Guardar</button></div>
+  </div>
+</div></div>
+
+<div class="mo" id="m-as" onclick="closeBg(event,'m-as')"><div class="md">
+  <h3 id="m-as-title">Agregar Asistente</h3>
+  <div class="confirm-del" id="del-as-confirm">&#9888; ¿Eliminar? Clic de nuevo para confirmar.</div>
+  <div class="frow"><div class="fg"><label>Nombre</label><input type="text" id="as-n"></div><div class="fg"><label>Contacto</label><input type="text" id="as-c"></div></div>
+  <div class="frow"><div class="fg"><label>Estado</label><select id="as-e"><option>Invitado</option><option>Confirmado</option><option>Presente</option></select></div><div class="fg"><label>Pago</label><select id="as-p"><option>Pendiente</option><option>Pagado</option><option>N/A</option></select></div></div>
+  <div class="fg"><label>Nota</label><input type="text" id="as-no"></div>
+  <input type="hidden" id="as-id">
+  <div class="mf">
+    <button class="btn btn-del btn-sm" id="btn-del-as" onclick="confirmDel('as')" style="display:none"><i class="ti ti-trash"></i> Eliminar</button>
+    <div class="mf-right"><button class="btn btn-o btn-sm" onclick="closeM('m-as')">Cancelar</button><button class="btn btn-sm" onclick="saveAs()">Guardar</button></div>
+  </div>
+</div></div>
+
+<div class="mo" id="m-prov" onclick="closeBg(event,'m-prov')"><div class="md">
+  <h3 id="m-prov-title">Nuevo Proveedor</h3>
+  <div class="confirm-del" id="del-prov-confirm">&#9888; ¿Eliminar proveedor y todos sus ítems? Clic de nuevo para confirmar.</div>
+  <div class="frow"><div class="fg"><label>Nombre</label><input type="text" id="pv-n"></div><div class="fg"><label>Instagram</label><input type="text" id="pv-ig" placeholder="@usuario"></div></div>
+  <div class="frow"><div class="fg"><label>Rubro</label><input type="text" id="pv-r"></div><div class="fg"><label>Contacto / Tel.</label><input type="text" id="pv-c"></div></div>
+  <div class="fg"><label>Notas generales</label><textarea id="pv-notas" rows="2"></textarea></div>
+  <input type="hidden" id="pv-id">
+  <div class="mf">
+    <button class="btn btn-del btn-sm" id="btn-del-prov" onclick="confirmDel('prov')" style="display:none"><i class="ti ti-trash"></i> Eliminar</button>
+    <div class="mf-right"><button class="btn btn-o btn-sm" onclick="closeM('m-prov')">Cancelar</button><button class="btn btn-sm" onclick="saveProv()">Guardar</button></div>
+  </div>
+</div></div>
+
+<div class="mo" id="m-pitem" onclick="closeBg(event,'m-pitem')"><div class="md">
+  <h3 id="m-pitem-title">Nuevo ítem de menú</h3>
+  <div class="confirm-del" id="del-pitem-confirm">&#9888; ¿Eliminar este ítem? Clic de nuevo para confirmar.</div>
+  <div class="fg"><label>Proveedor</label><select id="pi-prov-sel"></select></div>
+  <div class="frow"><div class="fg"><label>Nombre del ítem</label><input type="text" id="pi-tipo"></div><div class="fg"><label>Rubro</label><select id="pi-rubro"><option>Catering</option><option>Pasteleria</option><option>Panificados</option><option>Panaderia</option><option>Bebidas</option><option>General</option></select></div></div>
+  <div class="fg"><label>Descripción / qué incluye</label><textarea id="pi-desc" rows="3"></textarea></div>
+  <div class="fg"><label>Aclaraciones</label><input type="text" id="pi-aclara"></div>
+  <div class="frow3"><div class="fg"><label>Precio ($)</label><input type="number" id="pi-precio" value="0" min="0"></div><div class="fg"><label>Mín. pax</label><input type="text" id="pi-min"></div><div class="fg"><label>Máx. pax</label><input type="text" id="pi-max"></div></div>
+  <div class="frow"><div class="fg"><label>Movilidad propia</label><input type="text" id="pi-mov"></div><div class="fg"><label>Cocina en domicilio</label><input type="text" id="pi-cocina"></div></div>
+  <div class="fg"><label>Estado</label><select id="pi-estado"><option>En evaluación</option><option>Aprobado</option><option>Descartado</option><option>Sin evaluar</option></select></div>
+  <div class="fg"><label>Onda / observaciones tuyas</label><textarea id="pi-onda" rows="2"></textarea></div>
+  <input type="hidden" id="pi-id">
+  <div class="mf">
+    <button class="btn btn-del btn-sm" id="btn-del-pitem" onclick="confirmDel('pitem')" style="display:none"><i class="ti ti-trash"></i> Eliminar</button>
+    <div class="mf-right"><button class="btn btn-o btn-sm" onclick="closeM('m-pitem')">Cancelar</button><button class="btn btn-sm" onclick="savePitem()">Guardar</button></div>
+  </div>
+</div></div>
+
+<div class="mo" id="m-inv" onclick="closeBg(event,'m-inv')"><div class="md">
+  <h3 id="m-inv-title">Agregar Material</h3>
+  <div class="confirm-del" id="del-inv-confirm">&#9888; ¿Eliminar? Clic de nuevo para confirmar.</div>
+  <div class="frow"><div class="fg"><label>Nombre</label><input type="text" id="in-n"></div><div class="fg"><label>Categoría</label><select id="in-cat"><option>Mantelería</option><option>Vajilla &amp; Cristalería</option><option>Decoración</option><option>Iluminación</option><option>Mobiliario</option><option>Otro</option></select></div></div>
+  <div class="frow"><div class="fg"><label>Cantidad</label><input type="number" id="in-q" value="1" min="1"></div><div class="fg"><label>Detalle (color, material...)</label><input type="text" id="in-d"></div></div>
+  <div class="frow"><div class="fg"><label>Estado</label><select id="in-s"><option value="nuevo">Nuevo (amortizar ÷3)</option><option value="amort">Ya amortizado</option></select></div><div class="fg"><label>Costo original ($)</label><input type="number" id="in-co" value="0" min="0"></div></div>
+  <div class="fg"><label>Tarifa de uso amortizado ($)</label><input type="number" id="in-u" value="0" min="0"></div>
+  <input type="hidden" id="in-id">
+  <div class="mf">
+    <button class="btn btn-del btn-sm" id="btn-del-inv" onclick="confirmDel('inv')" style="display:none"><i class="ti ti-trash"></i> Eliminar</button>
+    <div class="mf-right"><button class="btn btn-o btn-sm" onclick="closeM('m-inv')">Cancelar</button><button class="btn btn-sm" onclick="saveInv()">Guardar</button></div>
+  </div>
+</div></div>
+
+<div class="mo" id="m-task" onclick="closeBg(event,'m-task')"><div class="md">
+  <h3 id="m-task-title">Nueva Tarea</h3>
+  <div class="confirm-del" id="del-task-confirm">&#9888; ¿Eliminar? Clic de nuevo para confirmar.</div>
+  <div class="fg"><label>Contexto / asignar a</label>
+    <select id="tk-ev-sel" style="width:100%">
+      <option value="">Propia de Hiedra (sin evento)</option>
+    </select>
+    <div style="font-size:10px;color:var(--tm);margin-top:3px">Elegí un evento o dejala como tarea propia de Hiedra</div>
+  </div>
+  <div class="fg"><label>Tarea</label><input type="text" id="tk-t"></div>
+  <div class="fg"><label>Detalle / subtareas</label><textarea id="tk-det" rows="4" placeholder="• Llamar a la florería&#10;• Confirmar color de manteles&#10;• Revisar vajilla disponible"></textarea><div style="font-size:10px;color:var(--tm);margin-top:3px">Escribí cada subtarea en una línea con • al inicio</div></div>
+  <div class="frow"><div class="fg"><label>Categoría</label><select id="tk-c"><option>Organización</option><option>Ambientación &amp; Logística</option><option>Comunicación</option><option>Finanzas</option></select></div><div class="fg"><label>Asignada a</label><input type="text" id="tk-a" value="Trini"></div></div>
+  <div class="fg"><label>Vence (opcional)</label><input type="date" id="tk-vence"></div>
+  <input type="hidden" id="tk-id">
+  <div class="mf">
+    <button class="btn btn-del btn-sm" id="btn-del-task" onclick="confirmDel('task')" style="display:none"><i class="ti ti-trash"></i> Eliminar</button>
+    <div class="mf-right"><button class="btn btn-o btn-sm" onclick="closeM('m-task')">Cancelar</button><button class="btn btn-sm" onclick="saveTask()">Guardar</button></div>
+  </div>
+</div></div>
+
+<div class="mo" id="m-costo" onclick="closeBg(event,'m-costo')"><div class="md">
+  <h3 id="m-costo-title">Agregar ítem de costo</h3>
+  <div class="confirm-del" id="del-costo-confirm">&#9888; ¿Eliminar? Clic de nuevo para confirmar.</div>
+
+  <!-- Tabs origen -->
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button id="co-tab-prov" class="btn btn-sm" onclick="setCostoTab('prov')" style="flex:1">Desde proveedor</button>
+    <button id="co-tab-manual" class="btn btn-o btn-sm" onclick="setCostoTab('manual')" style="flex:1">Manual / Hiedra</button>
+  </div>
+
+  <!-- Panel proveedor -->
+  <div id="co-panel-prov">
+    <div class="frow">
+      <div class="fg"><label>Proveedor</label><select id="co-prov-sel" onchange="loadProvItems()"><option value="">— Seleccioná —</option></select></div>
+      <div class="fg"><label>Ítem del menú</label><select id="co-item-sel" onchange="autoFillFromItem()"><option value="">— Primero elegí proveedor —</option></select></div>
+    </div>
+    <div id="co-item-preview" style="display:none;background:rgba(184,185,165,0.12);border-radius:2px;padding:10px 12px;font-size:11px;color:var(--tm);margin-bottom:12px;border-left:2px solid var(--verde)">
+      <div id="co-item-preview-desc" style="margin-bottom:4px;font-style:italic"></div>
+      <div id="co-item-preview-tags" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+
+  <!-- Campos comunes -->
+  <div class="fg"><label>Descripción</label><input type="text" id="co-d" placeholder="Ej: Honorario organización"></div>
+  <div class="fg"><label>Detalle / qué incluye</label><textarea id="co-det" rows="2" placeholder="Ej: Coordinación completa del evento, armado y desarmado..."></textarea></div>
+
+  <div class="frow">
+    <div class="fg"><label>Tipo de cálculo</label>
+      <select id="co-t" onchange="calcCosto()">
+        <option value="pp">Por persona</option>
+        <option value="fijo">Fijo (total)</option>
+        <option value="hiedra-prop">Hiedra — material propio</option>
+        <option value="hiedra-nuevo">Hiedra — material nuevo (÷3)</option>
+      </select>
+    </div>
+    <div class="fg"><label>Monto base ($)</label><input type="number" id="co-m" value="0" min="0" oninput="calcCosto()"></div>
+  </div>
+
+  <div class="frow">
+    <div class="fg"><label>Markup sobre este ítem (%)</label><input type="number" id="co-mk" value="0" min="0" max="200" oninput="calcCosto()"></div>
+    <div class="fg"><label>Pax del evento</label><input type="number" id="co-pax" value="30" readonly style="background:rgba(184,185,165,0.15);color:var(--tm)"></div>
+  </div>
+
+  <!-- Naturaleza -->
+  <div class="fg"><label>¿Qué es este ítem?</label>
+    <select id="co-nat" onchange="calcCosto()" style="width:100%">
+      <option value="costo">Costo externo — lo pagás a un proveedor</option>
+      <option value="ganancia">Ganancia directa — honorario, coordinación, deco propia</option>
+      <option value="gestionado">Recurso gestionado — conseguido sin costo (ej: mesas prestadas)</option>
+      <option value="recupero">Recupero de inversión — material nuevo que estás amortizando</option>
+    </select>
+  </div>
+
+  <!-- Distribución ganancia — SIEMPRE VISIBLE cuando hay ganancia -->
+  <div id="co-dist-box" style="background:rgba(208,160,59,0.08);border:1px solid rgba(208,160,59,0.25);border-radius:2px;padding:14px;margin-bottom:12px;display:none">
+    <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#8a6510;margin-bottom:12px">Distribución de la ganancia</div>
+    <div class="frow" style="margin-bottom:10px">
+      <div class="fg">
+        <label>% Fondo Hiedra <span style="color:#8a6510;font-weight:500">(recomendado 25%)</span></label>
+        <input type="number" id="co-fondo" value="25" min="0" max="100" oninput="calcCosto()" style="width:100%">
+      </div>
+      <div class="fg">
+        <label>% Ganancia tuya</label>
+        <input type="number" id="co-personal" value="75" readonly style="width:100%;background:rgba(184,185,165,0.15);color:var(--tm)">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div style="text-align:center;padding:8px;background:var(--surface);border-radius:2px;border:1px solid var(--bl)">
+        <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--tm);margin-bottom:3px">Ganancia total</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--borde);font-weight:500" id="co-gan-total">$0</div>
+      </div>
+      <div style="text-align:center;padding:8px;background:rgba(208,160,59,0.06);border-radius:2px;border:1px solid rgba(208,160,59,0.2)">
+        <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#8a6510;margin-bottom:3px">Fondo Hiedra</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;color:#8a6510;font-weight:500" id="co-fondo-amt">$0</div>
+      </div>
+      <div style="text-align:center;padding:8px;background:rgba(58,107,53,0.06);border-radius:2px;border:1px solid rgba(58,107,53,0.2)">
+        <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#3a6b35;margin-bottom:3px">Para vos</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;color:#3a6b35;font-weight:500" id="co-personal-amt">$0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monto final -->
+  <div style="background:rgba(148,28,32,0.05);border-radius:2px;padding:10px 12px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tm)">Monto final al cliente</span>
+    <span style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--borde);font-weight:500" id="co-final-preview">$0</span>
+  </div>
+
+  <input type="hidden" id="co-id">
+  <div class="mf">
+    <button class="btn btn-del btn-sm" id="btn-del-costo" onclick="confirmDel('costo')" style="display:none"><i class="ti ti-trash"></i> Eliminar</button>
+    <div class="mf-right"><button class="btn btn-o btn-sm" onclick="closeM('m-costo')">Cancelar</button><button class="btn btn-sm" onclick="saveCosto()">Guardar</button></div>
+  </div>
+</div></div>
+
+<!-- MODAL MOVIMIENTO INGRESO/EGRESO -->
+<div class="mo" id="m-mov" onclick="closeBg(event,'m-mov')"><div class="md">
+  <h3 id="m-mov-title">Nuevo movimiento</h3>
+  <div class="confirm-del" id="del-mov-confirm">&#9888; ¿Eliminar? Clic de nuevo para confirmar.</div>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button id="mov-tab-ing" class="btn btn-sm" onclick="setMovTab('ingreso',this)" style="flex:1">&#128200; Ingreso</button>
+    <button id="mov-tab-eg" class="btn btn-o btn-sm" onclick="setMovTab('egreso',this)" style="flex:1">&#128201; Egreso</button>
+  </div>
+  <!-- Para egresos: enlazar con ítem del presupuesto -->
+  <div id="mov-pres-row" style="display:none">
+    <div class="fg">
+      <label>Enlazar con ítem del presupuesto (opcional)</label>
+      <select id="mov-pres-item" onchange="autoFillFromPres()" style="width:100%">
+        <option value="">— Cargar manualmente —</option>
+      </select>
+    </div>
+  </div>
+  <div class="fg"><label>Concepto</label><input type="text" id="mov-concepto" placeholder="Ej: Seña 50%, Pago catering..."></div>
+  <div class="frow">
+    <div class="fg"><label>Monto ($)</label><input type="number" id="mov-monto" value="0" min="0"></div>
+    <div class="fg"><label>Fecha pactada</label><input type="date" id="mov-fecha"></div>
+  </div>
+  <div class="frow">
+    <div class="fg"><label>Estado</label><select id="mov-estado"><option value="pendiente">Pendiente</option><option value="parcial">Parcial</option><option value="ok">Recibido / Pagado</option></select></div>
+    <div class="fg"><label>Fecha real (si ya ocurrió)</label><input type="date" id="mov-fecha-real"></div>
+  </div>
+  <div class="fg"><label>Proveedor / quién paga (opcional)</label><input type="text" id="mov-quien" placeholder="Ej: La Toscana, Cliente..."></div>
+  <div id="mov-fondo-row" style="display:none">
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;background:rgba(208,160,59,0.08);border:1px solid rgba(208,160,59,0.25);border-radius:2px;margin-bottom:12px">
+      <input type="checkbox" id="mov-es-fondo" style="width:15px;height:15px;accent-color:var(--mostaza);cursor:pointer">
+      <div><div style="font-size:12px;font-weight:500;color:#8a6510">Este egreso va al Fondo Hiedra</div><div style="font-size:10px;color:var(--tm);margin-top:2px">Reinversion para el negocio, no pago a proveedor</div></div>
+    </label>
+  </div>
+  <div class="fg"><label>Nota</label><input type="text" id="mov-nota" placeholder="Ej: Transferencia, efectivo..."></div>
+  <input type="hidden" id="mov-id">
+  <input type="hidden" id="mov-tipo">
+  <input type="hidden" id="mov-ev-id">
+  <div class="mf">
+    <button class="btn btn-del btn-sm" id="btn-del-mov" onclick="confirmDel('mov')" style="display:none"><i class="ti ti-trash"></i> Eliminar</button>
+    <div class="mf-right"><button class="btn btn-o btn-sm" onclick="closeM('m-mov')">Cancelar</button><button class="btn btn-sm" onclick="saveMov()">Guardar</button></div>
+  </div>
+</div></div>
+
+<!-- MODAL NOTA -->
+<div class="mo" id="m-nota" onclick="closeBg(event,'m-nota')"><div class="md">
+  <h3 id="m-nota-title">Nota rápida</h3>
+  <div class="confirm-del" id="del-nota-confirm">&#9888; ¿Eliminar esta nota? Clic de nuevo para confirmar.</div>
+  <div class="fg"><label>Nota</label><textarea id="nota-txt" rows="4" placeholder="Llamar a Lucía antes del martes..."></textarea></div>
+  <div class="fg"><label>Evento relacionado (opcional)</label><select id="nota-ev"><option value="">— Sin evento —</option></select></div>
+  <input type="hidden" id="nota-id">
+  <div class="mf">
+    <button class="btn btn-del btn-sm" id="btn-del-nota" onclick="confirmDel('nota')" style="display:none"><i class="ti ti-trash"></i> Eliminar</button>
+    <div class="mf-right"><button class="btn btn-o btn-sm" onclick="closeM('m-nota')">Cancelar</button><button class="btn btn-sm" onclick="saveNota()">Guardar</button></div>
+  </div>
+</div></div>
+
+<!-- MODAL CIERRE DE EVENTO -->
+<div class="mo" id="m-cierre" onclick="closeBg(event,'m-cierre')"><div class="md">
+  <h3>Cerrar evento</h3>
+  <p style="font-size:12px;color:var(--tm);margin-bottom:16px">Registrá el resultado real del evento para comparar con lo estimado.</p>
+  <div class="frow"><div class="fg"><label>Asistentes reales</label><input type="number" id="ci-pax" value="0" min="0"></div><div class="fg"><label>Ingreso total real ($)</label><input type="number" id="ci-ingreso" value="0" min="0"></div></div>
+  <div class="fg"><label>Materiales de inventario usados</label><div class="inv-check-grid" id="ci-inv-list"></div></div>
+  <div class="fg"><label>Nota de cierre</label><textarea id="ci-nota" rows="3" placeholder="¿Qué salió bien? ¿Qué mejorar? ¿El proveedor cumplió?"></textarea></div>
+  <input type="hidden" id="ci-ev-id">
+  <div class="mf">
+    <div></div>
+    <div class="mf-right"><button class="btn btn-o btn-sm" onclick="closeM('m-cierre')">Cancelar</button><button class="btn btn-sm" onclick="saveCierre()">Cerrar evento</button></div>
+  </div>
+</div></div>
+
+<script>
+const COLS=['c1','c2','c3','c4','c5'];
+const PC=[{bg:'rgba(196,74,18,0.1)',c:'#c44a12'},{bg:'rgba(120,150,154,0.15)',c:'#78969a'},{bg:'rgba(208,160,59,0.15)',c:'#8a6510'},{bg:'rgba(148,28,32,0.1)',c:'#941c20'},{bg:'rgba(118,80,53,0.1)',c:'#765035'},{bg:'rgba(184,185,165,0.2)',c:'#565840'}];
+const SEED_PROVS=[{"id": 1, "nombre": "Sara Spicy", "instagram": "@mundo_spicysara", "rubro": "Catering", "contacto": "@mundo_spicysara"}, {"id": 2, "nombre": "Los Rebelo", "instagram": "@rebelo.catering", "rubro": "Catering", "contacto": "@rebelo.catering"}, {"id": 3, "nombre": "Mucha Deli", "instagram": "@rmuchaencasa", "rubro": "Catering", "contacto": "Agustina Festa"}, {"id": 4, "nombre": "Tanto gusto", "instagram": "@tantogustotandil", "rubro": "Panificados", "contacto": "Daniela"}, {"id": 5, "nombre": "Bocas", "instagram": "", "rubro": "Panificados", "contacto": "Fran Alvarez Reyna"}, {"id": 6, "nombre": "Lupes", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 7, "nombre": "Delicias de mi Tandil", "instagram": "", "rubro": "Alimentos", "contacto": ""}, {"id": 8, "nombre": "Pequeños gustos", "instagram": "", "rubro": "Alimentos", "contacto": ""}, {"id": 9, "nombre": "Acero eventos", "instagram": "", "rubro": "Alimentos", "contacto": ""}, {"id": 10, "nombre": "Pasteleria Lupes", "instagram": "", "rubro": "Pasteleria", "contacto": ""}, {"id": 11, "nombre": "Morada Arana", "instagram": "", "rubro": "Establecimiento", "contacto": ""}, {"id": 12, "nombre": "Azucar pastel ", "instagram": "", "rubro": "Pasteleria", "contacto": ""}, {"id": 13, "nombre": "Cholipas", "instagram": "", "rubro": "Pasteleria", "contacto": ""}, {"id": 14, "nombre": "Deco Candy Tandil", "instagram": "", "rubro": "Ambientacion - Deco", "contacto": ""}, {"id": 15, "nombre": "Trazo Digital", "instagram": "", "rubro": "Diseño Gráfico", "contacto": "Lucas Porta"}, {"id": 16, "nombre": "Bossio Artes Graficas", "instagram": "", "rubro": "Diseño Gráfico", "contacto": ""}, {"id": 17, "nombre": "Grafica 945", "instagram": "", "rubro": "Diseño Gráfico", "contacto": ""}, {"id": 18, "nombre": "Sole Globos", "instagram": "", "rubro": "Cotillón", "contacto": ""}, {"id": 19, "nombre": "La Comitiva", "instagram": "", "rubro": "Alimentos", "contacto": ""}, {"id": 20, "nombre": "Krk ", "instagram": "", "rubro": "Alimentos", "contacto": "Leandro Manera"}, {"id": 21, "nombre": "Bocas Tandil", "instagram": "", "rubro": "Pasteleria", "contacto": "Fran Alvarez Reyna"}, {"id": 22, "nombre": "Flores seres", "instagram": "", "rubro": "Ambientacion - Deco", "contacto": ""}, {"id": 23, "nombre": "Lupes Pasteleria", "instagram": "", "rubro": "Pasteleria", "contacto": "Guadalupe Palacios"}, {"id": 24, "nombre": "Gutierrez Catering", "instagram": "", "rubro": "Alimentos", "contacto": ""}, {"id": 25, "nombre": "Maria Restó", "instagram": "", "rubro": "Alimentos, Establecimiento", "contacto": ""}, {"id": 26, "nombre": "El Barman", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 27, "nombre": "10 Onzas", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 28, "nombre": "Mini sueños inflables", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 29, "nombre": "Estudio Vismara", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 30, "nombre": "Nielsen Eventos", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 31, "nombre": "Cava 1220 ", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 32, "nombre": "Alquilo todo Tandil", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 33, "nombre": "Igriega mobiliario", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 34, "nombre": "Salon Banco Provincia", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 35, "nombre": "Glitter Fest", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 36, "nombre": "Quinta Ufana", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 37, "nombre": "Papelera Silvina", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 38, "nombre": "Transfer Tandil- Aeropuerto", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 39, "nombre": "Alicia Paredes Ambientacion", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 40, "nombre": "Cabaña Valle de los Ciervos", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 41, "nombre": "Savia 21", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 42, "nombre": "Papelera Del Valle", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 43, "nombre": "Santi Luluaga", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 44, "nombre": "Cener House", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 45, "nombre": "A&B Alquiler de mobiliario", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 46, "nombre": "Marcos Mujica", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 47, "nombre": "La FotoTeca Cabina", "instagram": "", "rubro": "General", "contacto": ""}, {"id": 48, "nombre": "Celebraciones Encantadas", "instagram": "", "rubro": "General", "contacto": ""}];
+const SEED_ITEMS=[{"id": 1, "provId": 1, "tipo": "Tapeo mediterráneo", "rubro": "Catering", "desc": "Shot gazpacho, paté hongos, charcuterie, hummus, babaganoush, muhamara, vegetales, tortillitas", "aclara": "Por cotizar", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por cotizar", "minPax": "2", "maxPax": "30", "movilidad": "Consultar", "cocina": "", "onda": "Buena onda, estética muy Hiedra, cocina medio oriente", "estado": "En evaluación"}, {"id": 2, "provId": 1, "tipo": "Chef privado - Carnes", "rubro": "Catering", "desc": "Entrada: panera artesanal. Principal: costillar cerdo/ternera, brochete vegetales. Postre: flan coco, panqueques o vigilante", "aclara": "Por cotizar", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por cotizar", "minPax": "10", "maxPax": "50", "movilidad": "Consultar", "cocina": "", "onda": "", "estado": "En evaluación"}, {"id": 3, "provId": 1, "tipo": "Chef privado - Mediterráneo", "rubro": "Catering", "desc": "Entrada: tapeo mediterráneo (tabule, falafel, hummus, babaganoush). Principal: filete pescado. Postre: mousse choco blanco y maracuyá", "aclara": "Por cotizar", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por cotizar", "minPax": "10", "maxPax": "50", "movilidad": "Consultar", "cocina": "", "onda": "", "estado": "En evaluación"}, {"id": 4, "provId": 1, "tipo": "Spicy Box (para 2/3 pax)", "rubro": "Catering", "desc": "Falafels x12, hummus, babaganoush, taboulle, lajmayin. Versión vegetariana disponible.", "aclara": "Por cotizar", "precio": 25000, "tipoCalculo": "fijo", "tipoLabel": "Por cotizar", "minPax": "2", "maxPax": "3", "movilidad": "No (delivery)", "cocina": "", "onda": "Útil para regalo o box de bienvenida en evento", "estado": "En evaluación"}, {"id": 5, "provId": 2, "tipo": "Lunch / finger food", "rubro": "Catering", "desc": "Tabla quesos y fiambres para 10 pax. Sandwiches, bagels, scones, pinchos, empanadas, mini hamburguesas. Precio por docena.", "aclara": "Por persona", "precio": 13000, "tipoCalculo": "pp", "tipoLabel": "Por persona", "minPax": "10", "maxPax": "100+", "movilidad": "Sí", "cocina": "", "onda": "Más clásico, buena producción fotográfica. Menos estética Hiedra.", "estado": "En evaluación"}, {"id": 6, "provId": 3, "tipo": "Banquete", "rubro": "Catering", "desc": "Quesos de Tandil (Florido, Morbier y Brie con miel).\nVasca Brie Bruleada.\nDegustación de Hummus (Tradicional, Cabutia & Almendras, Remolacha).\nCake de Queso y Maíz Gratinado, Crudités y Frutas de Estación.\nPanadería de Masa Madre: Brioche, Focaccia, Pan de Nuez y Crackers.", "aclara": "Por persona (mín 10 pax)", "precio": 29000, "tipoCalculo": "pp", "tipoLabel": "Por persona (mín 10 pax)", "minPax": "10", "maxPax": "50", "movilidad": "Si", "cocina": "", "onda": "Ella es muy mala onda, pero el servicio 10 de 10. Es muy la estetica de Hiedra y porciones abundantes", "estado": "Aprobado"}, {"id": 7, "provId": 3, "tipo": "Banquete box", "rubro": "Catering", "desc": "Mousse Lomo Praga “Las Dinas”. \nMousse Quesos y Praliné. \nMini Vascas Bruleadas. \nHummus Cabutia y Almendras. \nChutney o Dulce Especiado. \nCornbread. \nBaguette Trenzada XL. \nBloque Focaccia. \nPan de Nuez Crocante y tostis", "aclara": "Por persona (mín 10 pax)", "precio": 26250, "tipoCalculo": "pp", "tipoLabel": "Por persona (mín 10 pax)", "minPax": "4", "maxPax": "30", "movilidad": "Si", "cocina": "", "onda": "", "estado": ""}, {"id": 8, "provId": 3, "tipo": "Sandwiches", "rubro": "Catering", "desc": "Bondiola o Ternera en cocción lenta.\nMayonesa casera pasteurizada. \nAlioli Cream Cheese. \nColeslaw verde tipo americano. \nChutney. \nPickles de pepino. \nPicante ahumado. \nPan tipo danés de manteca y doradura maiz.", "aclara": "Por persona (mín 10 pax)", "precio": 25500, "tipoCalculo": "pp", "tipoLabel": "Por persona (mín 10 pax)", "minPax": "10", "maxPax": "50", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 9, "provId": 3, "tipo": "Ragout", "rubro": "Catering", "desc": "Ragout de ternera y Spatzle + Crema de hierbas y baguette casera XL", "aclara": "Por persona (mín 10 pax)", "precio": 26000, "tipoCalculo": "pp", "tipoLabel": "Por persona (mín 10 pax)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 10, "provId": 3, "tipo": "Blanquet", "rubro": "Catering", "desc": "Blanquet de pollo + crema de hierbas y baguette casera XL", "aclara": "Por persona (mín 10 pax)", "precio": 24000, "tipoCalculo": "pp", "tipoLabel": "Por persona (mín 10 pax)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 11, "provId": 3, "tipo": "Rotolo", "rubro": "Catering", "desc": "Rotolo granitado de quesos y vegetales con salsa de tomates + focaccia XL", "aclara": "Por persona (mín 10 pax)", "precio": 24000, "tipoCalculo": "pp", "tipoLabel": "Por persona (mín 10 pax)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 12, "provId": 3, "tipo": "Chile", "rubro": "Catering", "desc": "Chile vegetariano + tortillas de maiz y picante ahumado", "aclara": "Por persona (mín 10 pax)", "precio": 25000, "tipoCalculo": "pp", "tipoLabel": "Por persona (mín 10 pax)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 13, "provId": 3, "tipo": "Pavlova tradicional con curd de limon, crema diplo", "rubro": "Pasteleria", "desc": "Pavlova tradicional con curd de limon, crema diplomata y frutas.", "aclara": "24 Cm | Por unidad", "precio": 53800, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 14, "provId": 3, "tipo": "Rogel tradicional con merengue italiano.", "rubro": "Pasteleria", "desc": "Rogel tradicional con merengue italiano.", "aclara": "Opcional: con flores y frutas \n24x24 cm | Por unidad", "precio": 65800, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 15, "provId": 3, "tipo": "Torta vasca + Dulce de frutillas casero o curd de ", "rubro": "Pasteleria", "desc": "Torta vasca + Dulce de frutillas casero o curd de limon", "aclara": "24 Cm | Por unidad", "precio": 65800, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 16, "provId": 3, "tipo": "Petite Four:", "rubro": "Pasteleria", "desc": "Petite Four:\nCabsha ganashe 70%\nLemon pie curd\nPavlova lingote con frutas\nNuez, ddl y praliné", "aclara": "30 unidades | Por unidad", "precio": 58000, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 17, "provId": 4, "tipo": "Molde 100% integral (vegano)", "rubro": "Panificados", "desc": "Molde 100% integral (vegano)\nMolde 100% centeno (vegano)\nMolde multicereal + semillas (vegano)\nMolde blanco\nBrioche (molde o mini)\nHamburguesa (grande o mini)\nPan de pancho o pebete (grande o mini)\nChips blanco e integral\nFigazza (gtande, mediana y mini)\nCiabatta\nArabe blanco o integral\nCampo blanco o integral 70% (grande,mediano o mini)\nCampo multicereal + lino \nZepellin de centeno 70%\nZepellin de centeno 70% con pasas y nueces\nBaguette blanca o 50% integral\nPrepizza o pizzeta blanca o integral 70%\nFocaccia al corte o placa\nFocaccia placa o individual con cebolla, tomate y otros\nPanes mini saborizados: maiz, aceituna, oregano y girasol, cebolla, pimenton \nTrensa con sesamo\nBizcocho integral + lino\nCremona\nCracker integrales con lino o especias\nTablitas saborizadas", "aclara": "Opcionales: harina de garbanzo, de lenteja, o harina de almendra.  | Por unidad", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 18, "provId": 4, "tipo": "Budines:", "rubro": "Catering", "desc": "Budines:\nVarios sabores, grandes o chicos\nBudines salados", "aclara": "Opcion 100% integral | Por unidad", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 19, "provId": 4, "tipo": "Alfajor de maicena o maicena integral", "rubro": "Pasteleria", "desc": "Alfajor de maicena o maicena integral\nAlfajor de algarroba\nAlfajor de centeno y lino\nAlfajor de coco\nAlfajor de nuez o maní o almendras\nAlfajor sablee con membrillo\nAlfajor sablee cn ddl y frutos rojos\nAlfajor de chocolate\nAlfajor de limón\nColasiones", "aclara": "Opcion mini | Por unidad", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 20, "provId": 4, "tipo": "Cookies:", "rubro": "Pasteleria", "desc": "Cookies:\nPepas con membrillo (opcional integrales)\nPepas de algarroba\nVainilla & chips\nCacao, mani & chips\nLimon\nLimon & chips blanco\nCafe\nMatcha\nRed velvet \nAvena & coco\nAvena & azucar negra\nCanela\nNaranja", "aclara": "Por unidad", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 21, "provId": 4, "tipo": "Scons", "rubro": "Catering", "desc": "Scons\nDe queso, de hierbas, salados, de limón.", "aclara": "Por unidad", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 22, "provId": 4, "tipo": "Chipá", "rubro": "Panificados", "desc": "Chipá", "aclara": "Por unidad", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 23, "provId": 4, "tipo": "Conitos", "rubro": "Pasteleria", "desc": "Conitos\nCoquitos", "aclara": "Por unidad", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 24, "provId": 4, "tipo": "Panaderia:", "rubro": "Panaderia", "desc": "Panaderia:\nRoscas glaseadas\nPan de leche\nRoll canela\nTorta negra\nMedia Luna Dulce o Salada\nCroissant\nDanesa\nPain u Chocolate\nTrenza con pastelera o dulce de leche\nPalmera\nFosforitos\nPastelitos membrillo (al horno )", "aclara": "Por unidad", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 25, "provId": 4, "tipo": "Tartas & tortas", "rubro": "Panificados", "desc": "Tartas & tortas\nPastafrola Membrillo\nCoco + Dulce de Leche\nCrumble Manzana\nCrumble PERA (Sablee Cacao)\nDulce de Leche + Ganache Chocolate\nLemon Pie\nPie Maracuyá\nPie de Lima [Key Lime Pie]\nPie de Naranja + Ganache Choco\nDiplomata + Frutillas\nCrema Limón + Frutilla\nTORTAS\nBalcarce\nFrutilla o Durazno\nCarrot Cake\nCheese Cake Frutos Rojos o Maracuya\nChocotorta\nCremosa de Pera\nDiablo\nMoka\nMousse Chocolate o Dulce de Leche o Limón\nRicota\nRogel\nBrownie [DDL + Merengue]\nMarquise + DDL + Merengue o DDL + Crema + FR\nTiramisú\nRed Velvet\nOREO\nPLACA BROWNIE\nPLACA LEMONIE\nPLACA MARQUISE\nMINI DULZURAS (ver opciones)", "aclara": "Por unidad", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 26, "provId": 5, "tipo": "Sablée de Almendras", "rubro": "Panificados", "desc": "Sablée de Almendras", "aclara": "Por unidad (entera)", "precio": 47700, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 27, "provId": 5, "tipo": "Marquise", "rubro": "Pasteleria", "desc": "Marquise", "aclara": "Por unidad (entera)", "precio": 47700, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 28, "provId": 5, "tipo": "Key Lime Pie", "rubro": "Pasteleria", "desc": "Key Lime Pie", "aclara": "Por unidad (entera)", "precio": 47700, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 29, "provId": 5, "tipo": "Torta Humeda de Chocolate", "rubro": "Pasteleria", "desc": "Torta Humeda de Chocolate", "aclara": "Por unidad (entera)", "precio": 47700, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 30, "provId": 5, "tipo": "Chocotorta", "rubro": "Pasteleria", "desc": "Chocotorta", "aclara": "Por unidad (entera)", "precio": 47700, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 31, "provId": 5, "tipo": "Cheesecake", "rubro": "Pasteleria", "desc": "Cheesecake", "aclara": "Por unidad (entera)", "precio": 47700, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 32, "provId": 5, "tipo": "Torta Oreo", "rubro": "Pasteleria", "desc": "Torta Oreo", "aclara": "Por unidad (entera)", "precio": 47700, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 33, "provId": 5, "tipo": "Bizcochuelo relleno / Torta matilda", "rubro": "Pasteleria", "desc": "Bizcochuelo relleno / Torta matilda", "aclara": "Por unidad (entera)", "precio": 46800, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 34, "provId": 5, "tipo": "Tarta Frutillas con DDL y crema", "rubro": "Pasteleria", "desc": "Tarta Frutillas con DDL y crema", "aclara": "Por unidad (entera)", "precio": 43200, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 35, "provId": 5, "tipo": "Torta Bastimentos (amarga)", "rubro": "Pasteleria", "desc": "Torta Bastimentos (amarga)", "aclara": "Por unidad (entera)", "precio": 44100, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 36, "provId": 5, "tipo": "Torta Bluff", "rubro": "Pasteleria", "desc": "Torta Bluff", "aclara": "Por unidad (entera)", "precio": 44100, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 37, "provId": 5, "tipo": "Tarta Manzanas Caramelizadas", "rubro": "Pasteleria", "desc": "Tarta Manzanas Caramelizadas", "aclara": "Por unidad (entera)", "precio": 44100, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 38, "provId": 5, "tipo": "Carrot Cake", "rubro": "Pasteleria", "desc": "Carrot Cake", "aclara": "Por unidad (entera)", "precio": 44100, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 39, "provId": 5, "tipo": "Rogel", "rubro": "Pasteleria", "desc": "Rogel", "aclara": "Por unidad (entera)", "precio": 43300, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 40, "provId": 5, "tipo": "Brownie DDL crema y frutos", "rubro": "Pasteleria", "desc": "Brownie DDL crema y frutos", "aclara": "Por unidad (entera)", "precio": 43300, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 41, "provId": 5, "tipo": "Brownie DDL Mousse, merengue/rulos", "rubro": "Pasteleria", "desc": "Brownie DDL Mousse, merengue/rulos", "aclara": "Por unidad (entera)", "precio": 38700, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 42, "provId": 5, "tipo": "Torta Balcarce", "rubro": "Pasteleria", "desc": "Torta Balcarce", "aclara": "Por unidad (entera)", "precio": 41400, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 43, "provId": 5, "tipo": "Torta Tiramisu", "rubro": "Pasteleria", "desc": "Torta Tiramisu", "aclara": "Por unidad (entera)", "precio": 41400, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 44, "provId": 5, "tipo": "Tarta Frutillas con pastelera", "rubro": "Pasteleria", "desc": "Tarta Frutillas con pastelera", "aclara": "Por unidad (entera)", "precio": 41400, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 45, "provId": 5, "tipo": "Tarta Multifrutal", "rubro": "Pasteleria", "desc": "Tarta Multifrutal", "aclara": "Por unidad (entera)", "precio": 41400, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 46, "provId": 5, "tipo": "Torta Banana Split", "rubro": "Pasteleria", "desc": "Torta Banana Split", "aclara": "Por unidad (entera)", "precio": 40500, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 47, "provId": 5, "tipo": "Discos de Merengue", "rubro": "Pasteleria", "desc": "Discos de Merengue", "aclara": "Por unidad (entera)", "precio": 40500, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 48, "provId": 5, "tipo": "Tarta Crumble de Manzanas", "rubro": "Pasteleria", "desc": "Tarta Crumble de Manzanas", "aclara": "Por unidad (entera)", "precio": 38700, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 49, "provId": 5, "tipo": "Lemon Pie", "rubro": "Pasteleria", "desc": "Lemon Pie", "aclara": "Por unidad (entera)", "precio": 34200, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 50, "provId": 5, "tipo": "Tarta Coralina", "rubro": "Pasteleria", "desc": "Tarta Coralina", "aclara": "Por unidad (entera)", "precio": 34200, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 51, "provId": 5, "tipo": "Tarta Ricota", "rubro": "Pasteleria", "desc": "Tarta Ricota", "aclara": "Por unidad (entera)", "precio": 34200, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 52, "provId": 5, "tipo": "Tarta Havannet", "rubro": "Pasteleria", "desc": "Tarta Havannet", "aclara": "Por unidad (entera)", "precio": 34200, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 53, "provId": 5, "tipo": "Pasta Frola", "rubro": "Pasteleria", "desc": "Pasta Frola", "aclara": "Por unidad (entera)", "precio": 34200, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 54, "provId": 5, "tipo": "Tarta de coco y DDL", "rubro": "Pasteleria", "desc": "Tarta de coco y DDL", "aclara": "Por unidad (entera)", "precio": 34200, "tipoCalculo": "fijo", "tipoLabel": "Por unidad (entera)", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 55, "provId": 5, "tipo": "3 miniporciones x pax", "rubro": "Pasteleria", "desc": "3 miniporciones x pax", "aclara": "Por unidad", "precio": 3300, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 56, "provId": 5, "tipo": "Scones de queso x unidad", "rubro": "Pasteleria", "desc": "Scones de queso x unidad", "aclara": "Por unidad", "precio": 2250, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 57, "provId": 5, "tipo": "Chipas 12 unidades", "rubro": "Pasteleria", "desc": "Chipas 12 unidades", "aclara": "Por unidad", "precio": 4000, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 58, "provId": 5, "tipo": "Scones dulces x unidad", "rubro": "Pasteleria", "desc": "Scones dulces x unidad", "aclara": "Por unidad", "precio": 1800, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 59, "provId": 5, "tipo": "Bagels x unidad", "rubro": "Pasteleria", "desc": "Bagels x unidad", "aclara": "Por unidad", "precio": 1300, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 60, "provId": 5, "tipo": "Pan Semi - Integral x kg", "rubro": "Pasteleria", "desc": "Pan Semi - Integral x kg", "aclara": "Por unidad", "precio": 8000, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 61, "provId": 5, "tipo": "Pan de campo x kg", "rubro": "Pasteleria", "desc": "Pan de campo x kg", "aclara": "Por unidad", "precio": 6500, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 62, "provId": 5, "tipo": "Alfajor de Maizena", "rubro": "Pasteleria", "desc": "Alfajor de Maizena", "aclara": "Por unidad", "precio": 2250, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 63, "provId": 5, "tipo": "Alfajor Sablée de Manteca", "rubro": "Pasteleria", "desc": "Alfajor Sablée de Manteca", "aclara": "Por unidad", "precio": 2250, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 64, "provId": 5, "tipo": "Alfajor Sablée de Almendras", "rubro": "Pasteleria", "desc": "Alfajor Sablée de Almendras", "aclara": "Por unidad", "precio": 3150, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 65, "provId": 5, "tipo": "Cookies Patagonia (cacao, choco blanco y frutos)", "rubro": "Pasteleria", "desc": "Cookies Patagonia (cacao, choco blanco y frutos)", "aclara": "Por unidad", "precio": 1800, "tipoCalculo": "fijo", "tipoLabel": "Por unidad", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 66, "provId": 6, "tipo": "Bruschettas para catering:", "rubro": "", "desc": "Bruschettas para catering:\nPrecio por docena\nCrudo & pera $14.000\nCapresse $9.000\nHongos $11.000\nRoquefort & nuez $11.000\nCrudo & roquefort $14.000", "aclara": "Por docena", "precio": 9000, "tipoCalculo": "fijo", "tipoLabel": "Por docena", "minPax": "", "maxPax": "                                                                     ", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 67, "provId": 6, "tipo": "Salado catering:", "rubro": "", "desc": "Salado catering:\nPrecio por docena\nFosforitos $19.000\nMedialunas con jyq $10.000\nSconnes de queso $9.000\nChips de pollo $19.000\nBites capresse $4.000\nTarteletas de cebolla $5.000\nTarteletas de jamón y queso $6.000", "aclara": "Por docena", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por docena", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}, {"id": 68, "provId": 6, "tipo": "Dulce catering:", "rubro": "", "desc": "Dulce catering:\nPrecio por docena\nMini cookies $10.000\nMedialunitas $5.000\nPetit fours 16 undades $18.000\nTrufas $5.500\nAlfajores $7.000\nBownie bites $5.000", "aclara": "Por docena", "precio": 0, "tipoCalculo": "fijo", "tipoLabel": "Por docena", "minPax": "", "maxPax": "", "movilidad": "", "cocina": "", "onda": "", "estado": ""}];
+let _activeFilter='todos';
+let _delPending=null;
+let _currentEvId=null;
+
+function db(k,d){try{const v=localStorage.getItem('h_'+k);return v?JSON.parse(v):d}catch{return d}}
+function sv(k,v){try{localStorage.setItem('h_'+k,JSON.stringify(v))}catch{}}
+function fmt(n){return '$'+Math.round(n).toLocaleString('es-AR')}
+function fk(n){const k=Math.abs(Math.round(n/1000));return (n<0?'-':'')+' $'+k+'k'}
+function gid(a){return a.length?Math.max(...a.map(x=>x.id))+1:1}
+function bEst(e){const m={Confirmado:'bv',Invitado:'bn',Presente:'bm'};return '<span class="badge '+(m[e]||'bg')+'">'+e+'</span>'}
+function bPago(p){return '<span class="badge '+(p==='Pagado'?'bv':p==='Pendiente'?'bb':'bg')+'">'+p+'</span>'}
+function estBadgeEv(s){const m={diseno:'est-diseno',confirmado:'est-confirmado',ejecucion:'est-ejecucion',cerrado:'est-cerrado'};const l={diseno:'En diseño',confirmado:'Confirmado',ejecucion:'En ejecución',cerrado:'Cerrado'};return `<span class="est-badge ${m[s]||'bg'}">${l[s]||s}</span>`;}
+function diasHasta(fecha){
+  if(!fecha)return 999;
+  const d=new Date(fecha+'T12:00:00');
+  const now=new Date();
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);
+  return Math.ceil((d-today)/(1000*60*60*24));
+}
+
+
+
+const APP_PASSWORD='hiedra2026';
+function doLogin(){
+  const pass=document.getElementById('login-pass').value;
+  if(pass===APP_PASSWORD){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app-wrapper').style.display='block';
+    sessionStorage.setItem('h_auth','1');
+  } else {
+    document.getElementById('login-error').style.display='block';
+    document.getElementById('login-pass').value='';
+    document.getElementById('login-pass').focus();
+  }
+}
+if(sessionStorage.getItem('h_auth')==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-wrapper').style.display='block';
+}
+
+// ===== FLUJO DE CAJA =====
+let _evdTab='resumen';
+let _movTipo='ingreso';
+
+function setEvdTab(tab, el){
+  _evdTab=tab;
+  document.querySelectorAll('.filter-chip[id^="evd-tab-"]').forEach(x=>x.classList.remove('active'));
+  if(el)el.classList.add('active');
+  document.getElementById('evd-content').style.display=tab==='resumen'?'block':'none';
+  document.getElementById('evd-flujo').style.display=tab==='flujo'?'block':'none';
+  document.getElementById('evd-presupuesto').style.display=tab==='presupuesto'?'block':'none';
+  document.getElementById('evd-liquidacion').style.display=tab==='liquidacion'?'block':'none';
+  if(tab==='flujo'&&_currentEvId)rFlujo(_currentEvId);
+  if(tab==='presupuesto'&&_currentEvId)rEvPres(_currentEvId);
+  if(tab==='liquidacion'&&_currentEvId)rLiquidacion(_currentEvId);
+}
+
+function setMovTab(tipo, el){
+  _movTipo=tipo;
+  document.getElementById('mov-tab-ing').className=tipo==='ingreso'?'btn btn-sm':'btn btn-o btn-sm';
+  document.getElementById('mov-tab-eg').className=tipo==='egreso'?'btn btn-sm':'btn btn-o btn-sm';
+  document.getElementById('mov-tipo').value=tipo;
+  // Show presupuesto link only for egresos
+  const presRow=document.getElementById('mov-pres-row');
+  if(presRow)presRow.style.display=tipo==='egreso'?'block':'none';
+  const fondoRow=document.getElementById('mov-fondo-row');
+  if(fondoRow)fondoRow.style.display=tipo==='egreso'?'block':'none';
+  // Populate presupuesto items if egreso
+  if(tipo==='egreso'){
+    const evId=parseInt(document.getElementById('mov-ev-id').value)||_currentEvId;
+    const ev=db('eventos',[]).find(e=>e.id===evId);
+    const pax=ev?ev.cap:30;
+    const costos=db('costos',[]).filter(c=>c.evId===evId&&c.nat==='costo');
+    const sel=document.getElementById('mov-pres-item');
+    if(sel){
+      sel.innerHTML='<option value="">— Cargar manualmente —</option>'+costos.map(c=>{
+        let base=c.monto;
+        if(c.tipo==='pp')base=c.monto*pax;
+        else if(c.tipo==='hiedra-nuevo')base=Math.round(c.monto/3);
+        const final=base*(1+(c.markup||0)/100);
+        return `<option value="${c.id}" data-monto="${final}" data-desc="${c.desc}">${c.desc} — ${fmt(final)}</option>`;
+      }).join('');
+    }
+  }
+}
+
+function autoFillFromPres(){
+  const sel=document.getElementById('mov-pres-item');
+  if(!sel||!sel.value)return;
+  const opt=sel.options[sel.selectedIndex];
+  const monto=parseFloat(opt.dataset.monto)||0;
+  const desc=opt.dataset.desc||'';
+  document.getElementById('mov-concepto').value='Pago '+desc;
+  document.getElementById('mov-monto').value=monto;
+}
+
+function rFlujo(evId){
+  const movs=db('movimientos',[]).filter(m=>m.evId===evId);
+  const ingresos=movs.filter(m=>m.tipo==='ingreso').sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  const egresos=movs.filter(m=>m.tipo==='egreso').sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+
+  const totalIng=ingresos.reduce((s,m)=>s+m.monto,0);
+  const cobrado=ingresos.filter(m=>m.estado==='ok').reduce((s,m)=>s+m.monto,0);
+  const egresosNorm=egresos.filter(m=>!m.esFondo);
+  const egresosFondo=egresos.filter(m=>m.esFondo);
+  const totalEg=egresosNorm.reduce((s,m)=>s+m.monto,0);
+  const pagado=egresosNorm.filter(m=>m.estado==='ok').reduce((s,m)=>s+m.monto,0);
+  const totalFondo=egresosFondo.reduce((s,m)=>s+m.monto,0);
+  const fondoAcum=egresosFondo.filter(m=>m.estado==='ok').reduce((s,m)=>s+m.monto,0);
+  const saldo=cobrado-pagado-fondoAcum;
+
+  const estadoBadge=(e)=>{
+    const m={'pendiente':'bb','parcial':'bm','ok':'bv'};
+    const l={'pendiente':'Pendiente','parcial':'Parcial','ok':'✓ Listo'};
+    return `<span class="badge ${m[e]||'bg'}">${l[e]||e}</span>`;
+  };
+
+  const now=new Date();
+  const rowStyle=(m)=>{
+    if(m.estado==='ok') return 'opacity:0.65';
+    if(m.fecha&&new Date(m.fecha+'T12:00:00')<now) return 'border-left:3px solid var(--borde)';
+    if(m.fecha){
+      const dias=Math.ceil((new Date(m.fecha+'T12:00:00')-now)/(1000*60*60*24));
+      if(dias<=3) return 'border-left:3px solid var(--naranja)';
+      if(dias<=7) return 'border-left:3px solid var(--mostaza)';
+    }
+    return '';
+  };
+
+  const renderMovs=(list,tipo)=>list.length?list.map(m=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--bl);border-radius:2px;margin-bottom:6px;background:var(--surface);${rowStyle(m)}">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px">${m.concepto}</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:var(--tm)">
+          ${m.quien?`<span>${m.quien}</span>`:''}
+          ${m.fecha?`<span>Pactado: ${new Date(m.fecha+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}</span>`:''}
+          ${m.fechaReal?`<span style="color:#3a6b35">Real: ${new Date(m.fechaReal+'T12:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}</span>`:''}
+          ${m.nota?`<span>${m.nota}</span>`:''}
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:${tipo==='ingreso'?'#3a6b35':'var(--borde)'}">${fmt(m.monto)}</div>
+        <div style="margin-top:3px">${estadoBadge(m.estado)}</div>
+      </div>
+      <button class="btn btn-o btn-xs" onclick="openMov(${m.id})"><i class="ti ti-pencil" style="font-size:11px"></i></button>
+    </div>`).join('')
+    :`<div style="color:var(--tm);font-size:12px;padding:10px 0;text-align:center">Sin ${tipo==='ingreso'?'cobros':'pagos'} cargados</div>`;
+
+  document.getElementById('evd-flujo').innerHTML=`
+    <!-- Resumen saldo -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px">
+      <div class="sc" style="border-color:rgba(58,107,53,0.25)">
+        <div class="sl">Cobrado</div>
+        <div class="sv" style="color:#3a6b35">${fk(cobrado)}</div>
+        <div class="ss">de ${fmt(totalIng)} total</div>
+      </div>
+      <div class="sc" style="border-color:rgba(148,28,32,0.2)">
+        <div class="sl">Pagado proveedores</div>
+        <div class="sv" style="color:var(--borde)">${fk(pagado)}</div>
+        <div class="ss">de ${fmt(totalEg)} total</div>
+      </div>
+      <div class="sc" style="border-color:rgba(208,160,59,0.3)">
+        <div class="sl">Fondo Hiedra</div>
+        <div class="sv" style="color:#8a6510">${fk(fondoAcum)}</div>
+        <div class="ss">de ${fmt(totalFondo)} total</div>
+      </div>
+      <div class="sc" style="border-color:${saldo>=0?'rgba(58,107,53,0.25)':'rgba(196,74,18,0.3)'}">
+        <div class="sl">Te queda</div>
+        <div class="sv" style="color:${saldo>=0?'#3a6b35':'var(--naranja)'}">${saldo>=0?'+':''}${fk(saldo)}</div>
+        <div class="ss">cobrado - prov - fondo</div>
+      </div>
+    </div>
+
+    <!-- Ingresos -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="ct" style="margin-bottom:0">&#128200; Ingresos — cobros del cliente</div>
+        <button class="btn btn-sm" onclick="openNuevoMov('ingreso',${evId})">+ Cobro</button>
+      </div>
+      ${renderMovs(ingresos,'ingreso')}
+      ${ingresos.length?`<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tm);margin-top:10px;padding-top:10px;border-top:1px solid var(--bl)">
+        <span>Total a cobrar: <strong>${fmt(totalIng)}</strong></span>
+        <span>Cobrado: <strong style="color:#3a6b35">${fmt(cobrado)}</strong></span>
+        <span>Pendiente: <strong style="color:var(--borde)">${fmt(totalIng-cobrado)}</strong></span>
+      </div>`:''}
+    </div>
+
+    <!-- Egresos -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="ct" style="margin-bottom:0">&#128201; Egresos — pagos a proveedores</div>
+        <button class="btn btn-sm" onclick="openNuevoMov('egreso',${evId})">+ Pago</button>
+      </div>
+      ${renderMovs(egresosNorm,'egreso')}
+      ${egresosNorm.length?`<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tm);margin-top:10px;padding-top:10px;border-top:1px solid var(--bl)">
+        <span>Total: <strong>${fmt(totalEg)}</strong></span>
+        <span>Pagado: <strong style="color:#3a6b35">${fmt(pagado)}</strong></span>
+        <span>Pendiente: <strong style="color:var(--borde)">${fmt(totalEg-pagado)}</strong></span>
+      </div>`:''}
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="ct" style="margin-bottom:0">&#127381; Fondo Hiedra</div>
+        <button class="btn btn-sm" style="background:var(--mostaza)" onclick="openFondo(${evId})">+ Al fondo</button>
+      </div>
+      ${egresosFondo.length?egresosFondo.map(m=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(208,160,59,0.25);border-left:3px solid var(--mostaza);border-radius:2px;margin-bottom:6px;background:rgba(208,160,59,0.04)"><div style="flex:1"><div style="font-size:13px;font-weight:500;color:#8a6510">${m.concepto}</div><div style="font-size:10px;color:var(--tm)">${m.fecha?new Date(m.fecha+"T12:00:00").toLocaleDateString("es-AR",{day:"2-digit",month:"short"}):""} ${m.nota||""}</div></div><div style="text-align:right"><div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:500;color:#8a6510">${fmt(m.monto)}</div><span class="badge bm">${m.estado==="ok"?"Acumulado":"Pendiente"}</span></div><button class="btn btn-o btn-xs" onclick="openMov(${m.id})"><i class="ti ti-pencil" style="font-size:11px"></i></button></div>`).join("")+"<div style='display:flex;justify-content:space-between;font-size:11px;color:#8a6510;margin-top:10px;padding-top:10px;border-top:1px solid rgba(208,160,59,0.2)'><span>Total al fondo: <strong>"+fmt(totalFondo)+"</strong></span><span>Acumulado: <strong>"+fmt(fondoAcum)+"</strong></span></div>"
+      :'<div style="color:var(--tm);font-size:12px;padding:10px 0;text-align:center">Sin aportes al fondo aun</div>'}
+    </div>`;
+}
+
+function openNuevoMov(tipo, evId){
+  document.getElementById('mov-ev-id').value=evId;
+  openM('mov',null);
+  setMovTab(tipo, document.getElementById(tipo==='ingreso'?'mov-tab-ing':'mov-tab-eg'));
+}
+function openFondo(evId){
+  document.getElementById('mov-ev-id').value=evId;
+  openM('mov',null);
+  setMovTab('egreso',document.getElementById('mov-tab-eg'));
+  setTimeout(()=>{if(document.getElementById('mov-es-fondo'))document.getElementById('mov-es-fondo').checked=true;},50);
+}
+
+function openMov(id){
+  openM('mov',id);
+}
+
+function saveMov(){
+  const movs=db('movimientos',[]);
+  const id=document.getElementById('mov-id').value;
+  const evId=parseInt(document.getElementById('mov-ev-id').value)||_currentEvId;
+  const movTipo=document.getElementById('mov-tipo').value||'ingreso';
+  const esFondo=movTipo==='egreso'&&(document.getElementById('mov-es-fondo')?.checked||false);
+  const data={
+    tipo:movTipo,
+    concepto:document.getElementById('mov-concepto').value||'Movimiento',
+    monto:parseFloat(document.getElementById('mov-monto').value)||0,
+    fecha:document.getElementById('mov-fecha').value||'',
+    fechaReal:document.getElementById('mov-fecha-real').value||'',
+    estado:document.getElementById('mov-estado').value||'pendiente',
+    quien:document.getElementById('mov-quien').value||'',
+    nota:document.getElementById('mov-nota').value||'',
+    esFondo,
+    evId
+  };
+  if(id){const i=movs.findIndex(x=>x.id===parseInt(id));if(i>=0)Object.assign(movs[i],data);}
+  else movs.push({id:gid(movs),...data});
+  sv('movimientos',movs);
+  closeM('m-mov');
+  rFlujo(evId);
+}
+
+
+
+function editarCostoDesdeEv(evId, costoId){
+  show('presupuesto');
+  setTimeout(()=>{
+    const sel=document.getElementById('pr-sel');
+    if(sel)sel.value=evId;
+    rPres();
+    setTimeout(()=>openM('costo',costoId),100);
+  },50);
+}
+
+function rEvPres(evId){
+  // Redirect to presupuesto page filtered to this event
+  const panel=document.getElementById('evd-presupuesto');
+  if(!panel)return;
+  const ev=db('eventos',[]).find(e=>e.id===evId);
+  const pax=ev?ev.cap:30;
+  const costos=db('costos',[]).filter(c=>c.evId===evId);
+  let totalBase=0,totalFinal=0,totalGan=0,totalFondo=0,totalPersonal=0;
+  const tl={'fijo':'fijo','pp':'por persona','hiedra-prop':'uso propio','hiedra-nuevo':'dividido 3'};
+  const natColor={'costo':'rgba(184,185,165,0.2)','ganancia':'rgba(58,107,53,0.12)','gestionado':'rgba(58,107,53,0.08)','recupero':'rgba(208,160,59,0.12)'};
+  const natText={'costo':'#565840','ganancia':'#3a6b35','gestionado':'#3a6b35','recupero':'#8a6510'};
+  const natLabel={'costo':'costo externo','ganancia':'ganancia directa','gestionado':'recurso gestionado','recupero':'recupero'};
+  costos.forEach(c=>{
+    let base=c.monto;
+    if(c.tipo==='pp')base=c.monto*pax;
+    else if(c.tipo==='hiedra-nuevo')base=Math.round(c.monto/3);
+    const mk=(c.markup||0)/100,final=base*(1+mk);
+    const nat=c.nat||(c.tipo.startsWith('hiedra')?'ganancia':'costo');
+    const pct=(c.pctFondo!=null?c.pctFondo:25)/100;
+    const esGan=nat==='ganancia'||nat==='gestionado';
+    const ganBruta=esGan?final:nat==='costo'?base*mk:0;
+    totalBase+=nat==='costo'?base:0;
+    totalFinal+=final;
+    totalGan+=ganBruta;
+    totalFondo+=ganBruta*pct;
+    totalPersonal+=ganBruta*(1-pct);
+  });
+  const ext=costos.filter(c=>{const n=c.nat||(c.tipo.startsWith('hiedra')?'ganancia':'costo');return n==='costo';});
+  const hi=costos.filter(c=>{const n=c.nat||(c.tipo.startsWith('hiedra')?'ganancia':'costo');return n!=='costo';});
+  const renderItems=items=>items.length?items.map(c=>{
+    let base=c.monto;
+    if(c.tipo==='pp')base=c.monto*pax;
+    else if(c.tipo==='hiedra-nuevo')base=Math.round(c.monto/3);
+    const mk=(c.markup||0)/100,final=base*(1+mk);
+    const nat=c.nat||(c.tipo.startsWith('hiedra')?'ganancia':'costo');
+    const hasMk=mk>0;
+    const pct=c.pctFondo!=null?c.pctFondo:25;
+    const esGan=nat==='ganancia'||nat==='gestionado';
+    const ganBruta=esGan?final:nat==='costo'?base*mk:0;
+    return `<div style="border:1px solid var(--bl);border-left:3px solid ${natColor[nat]||'var(--bl)'};border-radius:2px;padding:11px 14px;margin-bottom:7px;background:var(--surface)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">${c.desc}</div>
+          ${c.detalle?`<div style="font-size:11px;color:var(--tm);font-style:italic;margin-bottom:4px">${c.detalle}</div>`:''}
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <span style="font-size:9px;background:rgba(184,185,165,0.2);color:#565840;padding:2px 6px;border-radius:1px">${tl[c.tipo]||c.tipo}</span>
+            <span style="font-size:9px;background:${natColor[nat]};color:${natText[nat]};padding:2px 6px;border-radius:1px">${natLabel[nat]||nat}</span>
+            ${hasMk?`<span style="font-size:9px;background:rgba(208,160,59,0.15);color:#8a6510;padding:2px 6px;border-radius:1px">+${c.markup}% markup</span>`:''}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          ${hasMk?`<div style="font-size:10px;color:var(--tm);text-decoration:line-through">${fmt(base)}</div>`:''}
+          <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--borde)">${fmt(final)}</div>
+          ${esGan&&ganBruta>0?`<div style="font-size:9px;color:#8a6510">Fondo: ${fmt(ganBruta*(pct/100))} · Vos: ${fmt(ganBruta*((100-pct)/100))}</div>`:''}
+        </div>
+      </div>
+      <div style="margin-top:8px;display:flex;justify-content:flex-end">
+        <button class="btn btn-o btn-xs" onclick="editarCostoDesdeEv(${evId},${c.id})"><i class="ti ti-pencil" style="font-size:11px"></i> Editar</button>
+      </div>
+    </div>`;
+  }).join(''):`<div style="color:var(--tm);font-size:12px;padding:8px 0">Sin ítems</div>`;
+
+  panel.innerHTML=`
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="ct" style="margin-bottom:0">Costos del evento</div>
+        <button class="btn btn-sm" onclick="show('presupuesto');setTimeout(()=>{document.getElementById('pr-sel').value=${evId};rPres()},50)">Ver completo</button>
+      </div>
+      ${ext.length?`<div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bl)">Proveedores externos</div>${renderItems(ext)}`:''}
+      ${hi.length?`<div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);margin:12px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--bl)">Hiedra — Deco & Logística</div>${renderItems(hi)}`:''}
+      <div style="border-top:1px solid var(--bl);padding-top:10px;margin-top:8px;display:flex;justify-content:space-between">
+        <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tm)">Total estimado</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--text);font-weight:500">${fmt(totalFinal)}</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="sc"><div class="sl">Costo base</div><div class="sv">${fk(totalBase)}</div><div class="ss">a proveedores</div></div>
+      <div class="sc" style="border-color:rgba(208,160,59,0.3)"><div class="sl">Fondo Hiedra</div><div class="sv" style="color:#8a6510">${fk(totalFondo)}</div><div class="ss">estimado</div></div>
+      <div class="sc" style="border-color:rgba(58,107,53,0.25)"><div class="sl">Ganancia</div><div class="sv" style="color:#3a6b35">${fk(totalPersonal)}</div><div class="ss">estimada</div></div>
+    </div>`;
+}
+
+function parseDistrib(val, ganancia){
+  // val can be "25%" or "$50000" or "50000"
+  if(!val||!ganancia)return 0;
+  const s=val.trim();
+  if(s.endsWith('%'))return ganancia*(parseFloat(s)/100);
+  return parseFloat(s.replace(/[$.,]/g,''))||0;
+}
+
+function rLiquidacion(evId){
+  const panel=document.getElementById('evd-liquidacion');
+  if(!panel)return;
+  const ev=db('eventos',[]).find(e=>e.id===evId);
+  if(!ev){panel.innerHTML='<div style="color:var(--tm);font-size:12px">Evento no encontrado</div>';return;}
+  const pax=ev.cap;
+  const movs=db('movimientos',[]).filter(m=>m.evId===evId);
+  const costos=db('costos',[]).filter(c=>c.evId===evId);
+  // Total recaudado (ingresos cobrados)
+  const totalCobrado=movs.filter(m=>m.tipo==='ingreso'&&m.estado==='ok').reduce((s,m)=>s+m.monto,0);
+  const totalACobrar=movs.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+m.monto,0);
+  // Total pagado a proveedores
+  const totalPagado=movs.filter(m=>m.tipo==='egreso'&&!m.esFondo&&m.estado==='ok').reduce((s,m)=>s+m.monto,0);
+  const totalEgresos=movs.filter(m=>m.tipo==='egreso'&&!m.esFondo).reduce((s,m)=>s+m.monto,0);
+  // Total al fondo desde movimientos
+  const fondoMovs=movs.filter(m=>m.esFondo&&m.estado==='ok').reduce((s,m)=>s+m.monto,0);
+  // Ganancia bruta real
+  const gananciaBruta=totalCobrado-totalPagado;
+  // Fondo se descuenta primero de la ganancia bruta
+  const distFondo=parseDistrib(ev.distribFondo, gananciaBruta);
+  const gananciaNeta=gananciaBruta-distFondo;
+  // Coorg y Hiedra se dividen la ganancia NETA
+  const distCoorg=parseDistrib(ev.distribCoorg, gananciaNeta);
+  const distHiedra=parseDistrib(ev.distribHiedra, gananciaNeta);
+  const hayDistrib=ev.distribFondo||ev.distribCoorg||ev.distribHiedra;
+  // Costos estimados
+  let costoEstimado=0;
+  costos.forEach(c=>{
+    let base=c.monto;
+    if(c.tipo==='pp')base=c.monto*pax;
+    else if(c.tipo==='hiedra-nuevo')base=Math.round(c.monto/3);
+    if((c.nat||'costo')==='costo')costoEstimado+=base*(1+(c.markup||0)/100);
+  });
+  
+  panel.innerHTML=`
+    <!-- Flujo real -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="ct">Flujo real del evento</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+        <div class="sc" style="border-color:rgba(58,107,53,0.25)">
+          <div class="sl">Total cobrado</div>
+          <div class="sv" style="color:#3a6b35">${fk(totalCobrado)}</div>
+          <div class="ss">de ${fmt(totalACobrar)} total</div>
+        </div>
+        <div class="sc" style="border-color:rgba(148,28,32,0.2)">
+          <div class="sl">Pagado a proveedores</div>
+          <div class="sv" style="color:var(--borde)">${fk(totalPagado)}</div>
+          <div class="ss">de ${fmt(totalEgresos)} total</div>
+        </div>
+        <div class="sc" style="border-color:${gananciaBruta>=0?'rgba(58,107,53,0.25)':'rgba(196,74,18,0.3)'}">
+          <div class="sl">Ganancia bruta</div>
+          <div class="sv" style="color:${gananciaBruta>=0?'#3a6b35':'var(--naranja)'}">${gananciaBruta>=0?'+':''}${fk(gananciaBruta)}</div>
+          <div class="ss">cobrado - pagado</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Distribución -->
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="ct" style="margin-bottom:0">Distribución de la ganancia</div>
+        <button class="btn btn-o btn-sm" onclick="openM('ev',${evId})"><i class="ti ti-pencil"></i> Editar distribución</button>
+      </div>
+      ${!hayDistrib?`<div style="background:rgba(208,160,59,0.08);border:1px solid rgba(208,160,59,0.2);border-radius:2px;padding:12px;font-size:12px;color:#8a6510;margin-bottom:14px">
+        No configuraste la distribución aún. Hacé clic en "Editar distribución" para definir qué % va al fondo, a la co-organizadora y a Hiedra.
+      </div>`:''}
+      ${hayDistrib?`
+      <!-- Paso 1: Fondo -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="flex:1;background:rgba(208,160,59,0.08);border:1px solid rgba(208,160,59,0.2);border-radius:2px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#8a6510;margin-bottom:2px">Fondo Hiedra</div>
+            <div style="font-size:10px;color:var(--tm)">${ev.distribFondo||'—'} de la ganancia bruta</div>
+          </div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#8a6510;font-weight:500">− ${fmt(distFondo)}</div>
+        </div>
+      </div>
+      <!-- Ganancia neta -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(148,28,32,0.04);border:1px solid var(--bl);border-radius:2px;margin-bottom:14px">
+        <span style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--tm)">Ganancia neta a repartir</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--text);font-weight:500">${fmt(gananciaNeta)}</span>
+      </div>
+      <!-- Paso 2: Split -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:rgba(120,150,154,0.08);border:1px solid rgba(120,150,154,0.2);border-radius:2px;padding:14px;text-align:center">
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--azul);margin-bottom:4px">${ev.coorg||'Co-organizadora'}</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--azul);font-weight:500">${fmt(distCoorg)}</div>
+          <div style="font-size:10px;color:var(--tm);margin-top:3px">${ev.distribCoorg||'—'} de la ganancia neta</div>
+        </div>
+        <div style="background:rgba(58,107,53,0.08);border:1px solid rgba(58,107,53,0.2);border-radius:2px;padding:14px;text-align:center">
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#3a6b35;margin-bottom:4px">Hiedra — Trini</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:26px;color:#3a6b35;font-weight:500">${fmt(distHiedra)}</div>
+          <div style="font-size:10px;color:var(--tm);margin-top:3px">${ev.distribHiedra||'—'} de la ganancia neta</div>
+        </div>
+      </div>
+      <!-- Check -->
+      <div style="margin-top:10px;padding:8px 14px;background:rgba(148,28,32,0.04);border-radius:2px;border:1px solid var(--bl);font-size:11px;color:var(--tm);display:flex;justify-content:space-between">
+        <span>Fondo: <strong style="color:#8a6510">${fmt(distFondo)}</strong></span>
+        <span>${ev.coorg||'Co-org'}: <strong style="color:var(--azul)">${fmt(distCoorg)}</strong></span>
+        <span>Trini: <strong style="color:#3a6b35">${fmt(distHiedra)}</strong></span>
+        <span>Total: <strong style="color:${Math.abs(gananciaBruta-(distFondo+distCoorg+distHiedra))<1?'#3a6b35':'var(--naranja)'}">${fmt(distFondo+distCoorg+distHiedra)} / ${fmt(gananciaBruta)}</strong></span>
+      </div>`:''}
+    </div>
+
+    <!-- vs estimado -->
+    <div class="card">
+      <div class="ct">Real vs Estimado</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div class="sc"><div class="sl">Ingreso estimado</div><div class="sv">${fk(costoEstimado)}</div><div class="ss">según presupuesto</div></div>
+        <div class="sc"><div class="sl">Ingreso real</div><div class="sv" style="color:${totalCobrado>=costoEstimado?'#3a6b35':'var(--naranja)'}">${fk(totalCobrado)}</div><div class="ss">cobrado real</div></div>
+        <div class="sc" style="border-color:${totalCobrado-costoEstimado>=0?'rgba(58,107,53,0.25)':'rgba(196,74,18,0.3)'}">
+          <div class="sl">Diferencia</div>
+          <div class="sv" style="color:${totalCobrado-costoEstimado>=0?'#3a6b35':'var(--naranja)'}">${totalCobrado-costoEstimado>=0?'+':''}${fk(totalCobrado-costoEstimado)}</div>
+          <div class="ss">real - estimado</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function initData(){
+  // Inyectar datos de usuario si no hay nada aún
+  if(!db('data_loaded',false)){
+    sv('eventos',[{"id": 1, "color": "c1", "nombre": "Trucha x Hiedra Micro Eventos", "fecha": "2026-07-01", "hora": "21:00", "lugar": "Mi casa", "cap": 12, "estado": "diseno", "coorg": "Trucha", "desc": "El momento exacto entre lo conocido y lo nuevo.\nEntre el afuera y el adentro.\nEntre el invierno que llega y el otoño que todavía no se fue del todo.\nUmbral es ese instante — y esta mesa es el lugar donde cruzarlo.\n\nHILO CONDUCTOR\nDos mundos en tensión que se potencian. Lo japonés y lo serrano. Lo minimalista del omakase y lo orgánico de Hiedra. No se contradicen: se encuentran en la mesa.\n\nAMBIENTACIÓN\nRamas secas con musgo vivo. Velas bajas que marcan el límite entre la luz y la sombra. Colores tierra profundos — ocres, verdes oscuros. La mesa como línea divisoria entre dos mundos.\nNada simétrico. Nada perfecto. Como el umbral mismo.\n\nVAJILLA Y TEXTURAS\nCerámica artesanal de tonos oscuros y neutros. Piezas irregulares, con historia. Madera cruda. Lino sin blanquear. Materiales que ya tienen raíces antes de que llegue el primer invitado.\n\nNARRATIVA GASTRONÓMICA\nOmakase de autor. El chef decide en el momento — como cruzar un umbral sin saber del todo qué hay del otro lado. Cada pieza es una sorpresa. El vino acompaña el viaje\n\nATMÓSFERA SONORA\nAmbient japonés mezclado con folk patagónico. Sin letra al principio — solo textura sonora. La voz humana aparece cuando la sobremesa ya echó raíces.\n\nMOMENTOS DEL ENCUENTRO\n01  Bienvenida en pie  — Una copa, el espacio para ser visto antes de sentarse. Los invitados llegan al \"afuera\" del umbral.\n02  La mesa  — El chef presenta el concepto del menú sin revelar todo. Se cruza el umbral. Empieza el rito.\n03  Pausa de mitad  — Cambio de luz, cambio de música, una infusión caliente. El umbral se cierra. Ya estamos del otro lado.\n04  Sobremesa  — Sin apuro. La conversación es el postre. El \"adentro\" ya tiene nombre propio.\n\n\nPALABRAS DEL UNIVERSO UMBRAL\n\nTRANSICIÓN TENSIÓN DESCUBRIMIENTO PRIMER PASO LO QUE VIENE ANTES Y DESPUÉS SILENCIO QUE HABLA OTOÑO QUE EMPIEZA"}, {"id": 2, "color": "c2", "nombre": "Pop Up - Allé Amen", "fecha": "2026-06-26", "hora": "19:00", "lugar": "Mi casa", "cap": 15, "estado": "diseno", "coorg": "Allé Amen", "desc": ""}, {"id": 3, "color": "c3", "nombre": "Speaking Club 10 jun", "fecha": "2026-06-10", "hora": "18:00", "lugar": "Mi casa", "cap": 6, "estado": "ejecucion", "coorg": "Flor Dannunzio", "desc": "Primera clase Wanderlust & Travel"}]);
+    sv('asistentes',[{"id": 1, "evId": 1, "nombre": "ejemplo", "contacto": "ejemplo", "estado": "Confirmado", "pago": "Pagado", "nota": ""}]);
+    sv('tareas',[{"id": 1, "evId": 1, "done": false, "texto": "Reunión con las chicas de Allé", "cat": "Organización", "asign": "Trini", "vence": "2026-06-05", "det": "Proponer lugares: Mi granito de cafe o negro mercado (coffee rave) - Foster - \nProponer cena de Trucha un lunes x el pantalón de lunes a lunes"}, {"id": 2, "evId": 0, "done": false, "texto": "Ver tacitas de té en Bs As", "det": "12 tacitas de té para el evento de trucha", "cat": "Ambientación & Logística", "asign": "Trini", "vence": "2026-05-28"}, {"id": 3, "evId": 0, "done": true, "texto": "Asistir al curso de flores", "det": "Miercoles con Angeles", "cat": "Organización", "asign": "Trini", "vence": "2026-05-27"}, {"id": 4, "evId": 0, "done": true, "texto": "Agregar google maps a Lugar de los eventos", "det": "Agregar ubicacion via google maps al sector eventos, donde esta la opcion de lugar.", "cat": "Ambientación & Logística", "asign": "Trini", "vence": "2026-05-24"}, {"id": 5, "evId": 0, "done": true, "texto": "Agregar estructura de ingresos y pagos al presupuesto", "det": "", "cat": "Organización", "asign": "Trini", "vence": "2026-05-24"}, {"id": 6, "evId": 0, "done": false, "texto": "Comprar tijera Sakagen en amazon mx", "det": "", "cat": "Organización", "asign": "Trini", "vence": "2026-06-13"}, {"id": 7, "evId": 0, "done": false, "texto": "Comprar libro \"Pon flores en tu vida\"", "det": "", "cat": "Organización", "asign": "Trini", "vence": "2026-06-05"}, {"id": 8, "evId": 0, "done": true, "texto": "Ir a Casa Alberto", "det": "- Comprar baldes para flores\n- Comprar alambre\n- Comprar guantes para florista \n- Comprar limpia rosas", "cat": "Organización", "asign": "Trini", "vence": "2026-05-29"}]);
+    sv('costos',[{"id": 1, "evId": 1, "desc": "Menu de sushi", "detalle": "Entrada \nPto principal\n", "tipo": "pp", "monto": 35000, "markup": 20, "nat": "costo"}, {"id": 2, "evId": 1, "desc": "Lugar + mesas", "detalle": "", "tipo": "fijo", "monto": 50000, "markup": 0, "nat": "gestionado"}, {"id": 3, "evId": 1, "desc": "Ambientacion", "detalle": "Platos\nCopas\nManteleria\nVajilla\n", "tipo": "fijo", "monto": 150000, "markup": 12, "nat": "costo"}, {"id": 4, "evId": 1, "desc": "Organización y coordinación", "detalle": "", "tipo": "fijo", "monto": 200000, "markup": 0, "nat": "ganancia"}, {"id": 5, "evId": 3, "desc": "Capsulas de cafe", "detalle": "10 ", "tipo": "fijo", "monto": 11000, "markup": 0, "nat": "costo"}, {"id": 6, "evId": 3, "desc": "Meta Ads", "detalle": "Campaña publicitaria", "tipo": "fijo", "monto": 25000, "markup": 0, "nat": "costo"}, {"id": 7, "evId": 3, "desc": "Fotocopias y material", "detalle": "Juegos!", "tipo": "fijo", "monto": 16000, "markup": 0, "nat": "recupero"}, {"id": 8, "evId": 3, "desc": "Petite fours 16 u y mini soncs de queso", "detalle": "No incluye el envio", "tipo": "fijo", "monto": 28000, "markup": 0, "nat": "costo"}]);
+    sv('inventario',[]);
+    sv('notas',[]);
+    sv('cierres',[]);
+    sv('movimientos',[{"id": 1, "tipo": "ingreso", "concepto": "Carolina Mes", "monto": 60000, "fecha": "2026-06-10", "fechaReal": "2026-06-10", "estado": "ok", "quien": "Carolina", "nota": "Transferencia a trini mercado pago", "evId": 3}, {"id": 2, "tipo": "ingreso", "concepto": "Gise Mes", "monto": 60000, "fecha": "2026-06-10", "fechaReal": "2026-06-10", "estado": "ok", "quien": "Giselle", "nota": "Transferencia a trini mercado pago", "evId": 3}, {"id": 3, "tipo": "ingreso", "concepto": "Lean clase", "monto": 30000, "fecha": "2026-06-10", "fechaReal": "2026-06-10", "estado": "ok", "quien": "Leandro solo 1 clase", "nota": "Transferencia a trini mercado pago", "evId": 3}]);
+    sv('data_loaded',true);
+  }
+  // SIEMPRE inicializar datos de usuario si no existen — NUNCA sobreescribir
+  if(!db('eventos',null))sv('eventos',[]);
+  if(!db('asistentes',null))sv('asistentes',[]);
+  if(!db('tareas',null))sv('tareas',[]);
+  if(!db('costos',null))sv('costos',[]);
+  if(!db('inventario',null))sv('inventario',[]);
+  if(!db('notas',null))sv('notas',[]);
+  if(!db('cierres',null))sv('cierres',[]);
+  if(!db('movimientos',null))sv('movimientos',[]);
+  // Proveedores: actualizar solo si la versión cambió
+  if(db('provs_version',0)<4){
+    sv('proveedores',SEED_PROVS);
+    sv('pitems',SEED_ITEMS);
+    sv('provs_version',4);
+  }
+}
+
+function setFilter(f,el){_activeFilter=f;document.querySelectorAll('.filter-chip').forEach(x=>x.classList.remove('active'));el.classList.add('active');rProv();}
+
+function show(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+  document.getElementById('p-'+p).classList.add('active');
+  const m={dashboard:0,eventos:1,evdetalle:1,asistentes:2,presupuesto:3,proveedores:4,inventario:5,checklist:6};
+  if(m[p]!==undefined)document.querySelectorAll('.ni')[m[p]].classList.add('active');
+  window.scrollTo(0,0);
+  if(p==='dashboard')rDash();
+  else if(p==='eventos')rEv();
+  else if(p==='asistentes'){const s=document.getElementById('as-sel');if(s)s.innerHTML='';rAs();}
+  else if(p==='presupuesto'){
+    _prMes=new Date();_prMes.setDate(1);
+    setPrTab('mes',document.getElementById('pr-tab-mes'));
+  }
+  else if(p==='proveedores')rProv();
+  else if(p==='inventario')rInv();
+  else if(p==='checklist')rCL();
+}
+
+function showEvDetalle(evId){
+  _currentEvId=evId;
+  const ev=db('eventos',[]).find(e=>e.id===evId);
+  if(!ev)return;
+  document.getElementById('evd-title').textContent=ev.nombre;
+  document.getElementById('btn-cierre').style.display=ev.estado==='cerrado'?'none':'inline-flex';
+  const as=db('asistentes',[]).filter(a=>a.evId===evId);
+  const tk=db('tareas',[]).filter(t=>t.evId===evId);
+  const costos=db('costos',[]).filter(c=>c.evId===evId);
+  const notas=db('notas',[]).filter(n=>n.evId===evId);
+  const cierre=db('cierres',[]).find(c=>c.evId===evId);
+  const now=new Date();
+  const dias=diasHasta(ev.fecha);
+  const conf=as.filter(a=>a.estado==='Confirmado'||a.estado==='Presente').length;
+  const pax=ev.cap;
+  let totalFinal=0;
+  costos.forEach(c=>{
+    let base=c.monto;
+    if(c.tipo==='pp')base=c.monto*pax;
+    else if(c.tipo==='hiedra-nuevo')base=Math.round(c.monto/3);
+    totalFinal+=base*(1+(c.markup||0)/100);
+  });
+  let ganEst=0;
+  costos.forEach(c=>{
+    let base=c.monto;
+    if(c.tipo==='pp')base=c.monto*pax;
+    else if(c.tipo==='hiedra-nuevo')base=Math.round(c.monto/3);
+    const nat=c.nat||'costo';
+    const final=base*(1+(c.markup||0)/100);
+    if(nat==='ganancia')ganEst+=final;
+    else if(nat==='costo')ganEst+=base*(c.markup||0)/100;
+  });
+  // Countdown
+  let cdHtml='';
+  if(ev.estado!=='cerrado'){
+    const urgente=dias<=7&&dias>=0;
+    cdHtml=`<div class="countdown-box" style="${urgente?'background:var(--naranja)':''}">
+      <div><div class="cd-label">Faltan</div><div class="cd-value">${dias>=0?dias:'ya fue'}</div><div class="cd-unit">días</div></div>
+      <div style="text-align:right"><div class="cd-name">${ev.nombre}</div><div style="margin-top:6px">${estBadgeEv(ev.estado)}</div>${ev.coorg?`<div style="font-size:10px;color:rgba(240,220,195,0.6);margin-top:4px">Co-org: ${ev.coorg}</div>`:''}</div>
+    </div>`;
+  }
+  // Tasks timeline
+  const tkPend=tk.filter(t=>!t.done);
+  const tkDone=tk.filter(t=>t.done);
+  const tlHtml=tkPend.length?tkPend.map(t=>{
+    const vence=t.vence?new Date(t.vence):null;
+    const urgent=vence&&vence<new Date(Date.now()+3*86400000);
+    return `<div class="tl-item"><div class="tl-dot ${urgent?'urgent':''}"></div><div class="tl-label">${t.texto}</div><div class="tl-sub">${t.asign}${t.vence?' · vence '+new Date(t.vence).toLocaleDateString('es-AR',{day:'2-digit',month:'short'}):''}</div></div>`;
+  }).join(''):'<div style="color:var(--tm);font-size:12px">&#127881; Todas las tareas listas</div>';
+  // Cierre
+  let cierreHtml='';
+  if(cierre){
+    const ganReal=cierre.ingreso-totalFinal;
+    cierreHtml=`<div class="card" style="border-color:var(--verde)"><div class="ct">Resumen de cierre</div>
+      <div class="cierre-grid">
+        <div class="cierre-item"><div class="cierre-lbl">Asistentes reales</div><div class="cierre-val">${cierre.pax}</div><div class="cierre-sub">de ${pax} esperados</div></div>
+        <div class="cierre-item"><div class="cierre-lbl">Ingreso real</div><div class="cierre-val">${fk(cierre.ingreso)}</div><div class="cierre-sub">estimado ${fk(totalFinal)}</div></div>
+        <div class="cierre-item"><div class="cierre-lbl">Ganancia real</div><div class="cierre-val ${ganReal>=0?'ganancia-pos':'ganancia-neg'}">${ganReal>=0?'+':''}${fk(ganReal)}</div><div class="cierre-sub">estimada ${fk(ganEst)}</div></div>
+      </div>
+      ${cierre.nota?`<div style="background:rgba(184,185,165,0.12);border-radius:2px;padding:10px 12px;font-size:12px;color:var(--tm);font-style:italic">"${cierre.nota}"</div>`:''}
+    </div>`;
+  }
+  document.getElementById('evd-content').innerHTML=`
+    ${cdHtml}
+    ${cierreHtml}
+    <div class="two">
+      <div>
+        <div class="card"><div class="ct">Línea de tiempo de tareas</div><div class="timeline">${tlHtml}</div>
+          ${tkDone.length?`<div style="font-size:10px;color:var(--tm);margin-top:10px">&#10003; ${tkDone.length} tarea${tkDone.length>1?'s':''} completada${tkDone.length>1?'s':''}</div>`:''}
+          <button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="show('checklist');setTimeout(()=>{document.getElementById('cl-sel').value=${evId};rCL()},50)">Ver checklist completo</button>
+        </div>
+        <div class="card"><div class="ct">Asistentes</div>
+          <div style="display:flex;gap:16px;font-size:12px;margin-bottom:10px">
+            <span>Confirmados: <strong style="color:var(--borde)">${conf}</strong></span>
+            <span>Pagaron: <strong style="color:var(--borde)">${as.filter(a=>a.pago==='Pagado').length}</strong></span>
+            <span>Pendiente: <strong style="color:var(--naranja)">${as.filter(a=>a.pago==='Pendiente').length}</strong></span>
+          </div>
+          <div class="pb"><div class="pf" style="width:${pax>0?Math.round(conf/pax*100):0}%"></div></div>
+          <div class="pl" style="margin-bottom:10px"><span>Ocupación</span><span>${pax>0?Math.round(conf/pax*100):0}%</span></div>
+          <button class="btn btn-o btn-sm" style="width:100%" onclick="show('asistentes');setTimeout(()=>{document.getElementById('as-sel').value=${evId};rAs()},50)">Ver lista completa</button>
+        </div>
+      </div>
+      <div>
+        <div class="card"><div class="ct">Resumen de presupuesto</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:12px;color:var(--tm)">Total estimado</span>
+            <span style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--borde)">${fmt(totalFinal)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span style="font-size:12px;color:var(--tm)">Ganancia estimada</span>
+            <span style="font-size:13px;font-weight:500;color:${ganEst>=0?'#3a6b35':'var(--borde)'}">${ganEst>=0?'+':''}${fmt(ganEst)}</span>
+          </div>
+          <button class="btn btn-o btn-sm" style="width:100%" onclick="show('presupuesto');setTimeout(()=>{document.getElementById('pr-sel').value=${evId};rPres()},50)">Ver presupuesto completo</button>
+        </div>
+        <div class="card"><div class="ct">Notas del evento</div>
+          <div id="evd-notas">${notas.map(n=>`<div class="nota-box"><div class="nota-text">${n.txt}</div><button class="btn btn-del btn-xs" style="margin-top:6px" onclick="openM('nota',${n.id})"><i class="ti ti-pencil" style="font-size:10px"></i></button></div>`).join('')||'<div style="color:var(--tm);font-size:12px">Sin notas.</div>'}</div>
+          <button class="btn btn-o btn-sm" style="margin-top:10px;width:100%" onclick="openMNotaEv(${evId})">+ Nota</button>
+        </div>
+      </div>
+    </div>`;
+  show('evdetalle');
+}
+
+function popSel(id,evId){
+  const evs=db('eventos',[]);const sel=document.getElementById(id);if(!sel)return;
+  sel.innerHTML=evs.map(e=>`<option value="${e.id}">${e.nombre} — ${new Date(e.fecha).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}</option>`).join('');
+  if(evId)sel.value=evId;
+}
+
+function rDash(){
+  const evs=db('eventos',[]),as=db('asistentes',[]),provs=db('proveedores',[]),now=new Date();
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="sc"><div class="sl">Eventos activos</div><div class="sv">${evs.filter(e=>e.estado!=='cerrado').length}</div><div class="ss">en curso</div></div>
+    <div class="sc"><div class="sl">Próximo en</div><div class="sv">${(()=>{const prox=evs.filter(e=>new Date(e.fecha)>=now).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha))[0];return prox?diasHasta(prox.fecha)+'d':'—'})()}</div><div class="ss">días</div></div>
+    <div class="sc"><div class="sl">Asistentes</div><div class="sv">${as.length}</div><div class="ss">cargados</div></div>
+    <div class="sc"><div class="sl">Proveedores</div><div class="sv">${provs.length}</div><div class="ss">en directorio</div></div>`;
+  const sorted=[...evs].sort((a,b)=>new Date(a.fecha)-new Date(b.fecha)).filter(e=>e.estado!=='cerrado');
+  document.getElementById('dash-eventos').innerHTML=sorted.slice(0,4).map(e=>{
+    const dias=diasHasta(e.fecha);
+    return `<div class="row" style="cursor:pointer" onclick="showEvDetalle(${e.id})">
+      <div><div class="rn">${e.nombre}</div><div class="rs">${new Date(e.fecha).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})} · ${e.lugar}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        ${estBadgeEv(e.estado)}
+        <span style="font-size:10px;color:${dias<=7&&dias>=0?'var(--naranja)':'var(--tm)'}">${dias>=0?dias+' días':'pasado'}</span>
+      </div>
+    </div>`;
+  }).join('')||'<div style="color:var(--tm);font-size:12px;padding:10px 0">Sin eventos activos.</div>';
+  const tk=db('tareas',[]).filter(t=>!t.done);
+  const urgent=tk.filter(t=>t.vence&&new Date(t.vence)<new Date(Date.now()+3*86400000));
+  const shown=(urgent.length?urgent:tk).slice(0,4);
+  document.getElementById('dash-tasks').innerHTML=shown.map(t=>{
+    const ev=evs.find(e=>e.id===t.evId);
+    const vence=t.vence?new Date(t.vence):null;
+    const isUrgent=vence&&vence<new Date(Date.now()+3*86400000);
+    return `<div class="row"><div><div class="rn" style="color:${isUrgent?'var(--naranja)':'var(--text)'}">${t.texto}</div><div class="rs">${ev?ev.nombre:''} · ${t.asign}</div></div><span class="badge ${isUrgent?'bn':'bb'}">${isUrgent?'Urgente':'Pendiente'}</span></div>`;
+  }).join('')||'<div style="color:var(--tm);font-size:12px;padding:10px 0">&#127881; Sin tareas pendientes</div>';
+  const notas=db('notas',[]).slice(-4).reverse();
+  document.getElementById('dash-notas').innerHTML=notas.map(n=>{
+    const ev=evs.find(e=>e.id===n.evId);
+    return `<div class="nota-box"><div class="nota-text">${n.txt}</div><div class="nota-meta">${ev?ev.nombre:'General'}</div></div>`;
+  }).join('')||'<div style="color:var(--tm);font-size:12px">Sin notas aún.</div>';
+}
+
+function rEv(){
+  const evs=db('eventos',[]),as=db('asistentes',[]);
+  let h=evs.map((e,i)=>{
+    const conf=as.filter(a=>a.evId===e.id&&(a.estado==='Confirmado'||a.estado==='Presente')).length;
+    const pct=e.cap>0?Math.round((conf/e.cap)*100):0;
+    const d=new Date(e.fecha).toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'});
+    const dias=diasHasta(e.fecha);
+    return `<div class="ec" style="cursor:pointer" onclick="showEvDetalle(${e.id})">
+      <div class="eh ${e.color||COLS[i%5]}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div><div class="en">${e.nombre}</div><div class="esub">${d} · ${e.lugar}</div></div>
+          <button onclick="event.stopPropagation();openM('ev',${e.id})" style="background:rgba(240,220,195,0.2);border:none;color:var(--crema);border-radius:1px;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="ti ti-pencil" style="font-size:13px"></i></button>
+        </div>
+      </div>
+      <div class="eb">
+        <div class="em"><span><i class="ti ti-users"></i>${conf}/${e.cap}</span><span><i class="ti ti-clock"></i>${e.hora} hs</span><span>${estBadgeEv(e.estado)}</span></div>
+        <div class="pb"><div class="pf" style="width:${pct}%"></div></div>
+        <div class="pl"><span>Ocupación ${pct}%</span><span style="color:${dias<=7&&dias>=0?'var(--naranja)':'var(--tm)'}">${dias>=0?dias+' días':'realizado'}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  h+=`<div class="ec ea" onclick="openM('ev',null)"><i class="ti ti-plus"></i><span>Nuevo evento</span></div>`;
+  document.getElementById('ev-grid').innerHTML=h;
+}
+
+function rAs(){
+  const asSel=document.getElementById('as-sel');
+  const asVal=asSel?asSel.value:null;
+  // Populate if empty - add "Todos los eventos" option
+  if(asSel&&asSel.options.length===0){
+    const evs=db('eventos',[]);
+    asSel.innerHTML='<option value="0">Todos los eventos</option>'+evs.map(e=>`<option value="${e.id}">${e.nombre}</option>`).join('');
+  }
+  if(asVal&&asSel)asSel.value=asVal;
+  const evId=parseInt(document.getElementById('as-sel').value)||0;
+  const q=(document.getElementById('as-search')?.value||'').toLowerCase();
+  const lista=db('asistentes',[]).filter(a=>a.evId===evId);
+  document.getElementById('as-body').innerHTML=lista.map(a=>`<tr><td style="font-weight:500">${a.nombre}</td><td style="color:var(--tm)">${a.contacto}</td><td>${bEst(a.estado)}</td><td>${bPago(a.pago)}</td><td style="color:var(--tm)">${a.nota}</td><td><button class="btn btn-o btn-sm" onclick="openM('as',${a.id})"><i class="ti ti-pencil" style="font-size:12px"></i></button></td></tr>`).join('');
+  const conf=lista.filter(a=>a.estado==='Confirmado'||a.estado==='Presente').length;
+  document.getElementById('as-stats').innerHTML=`<span>Total: <strong style="color:var(--borde)">${lista.length}</strong></span><span>Confirmados: <strong style="color:var(--borde)">${conf}</strong></span><span>Pagaron: <strong style="color:var(--borde)">${lista.filter(a=>a.pago==='Pagado').length}</strong></span>`;
+}
+
+
+let _prTab='mes';
+let _prMes=new Date();
+_prMes.setDate(1);
+
+function setPrTab(tab, el){
+  _prTab=tab;
+  document.querySelectorAll('.filter-chip[id^="pr-tab-"]').forEach(x=>x.classList.remove('active'));
+  if(el)el.classList.add('active');
+  document.getElementById('pr-panel-mes').style.display=tab==='mes'?'block':'none';
+  document.getElementById('pr-panel-ev').style.display=tab==='evento'?'block':'none';
+  document.getElementById('btn-add-costo').style.display=tab==='evento'?'inline-flex':'none';
+  if(tab==='mes')rMes();
+  else{const s=document.getElementById('pr-sel');if(s&&s.options.length&&!s.value)s.value=s.options[0].value;rPres();}
+}
+
+function cambiarMes(dir){
+  _prMes.setMonth(_prMes.getMonth()+dir);
+  rMes();
+}
+
+function calcGananciaEvento(evId){
+  const ev=db('eventos',[]).find(e=>e.id===evId);
+  const pax=ev?ev.cap:30;
+  const costos=db('costos',[]).filter(c=>c.evId===evId);
+  let ganTotal=0,ganFondo=0,ganPersonal=0,totalFinal=0,totalBase=0;
+  costos.forEach(c=>{
+    let base=c.monto;
+    if(c.tipo==='pp')base=c.monto*pax;
+    else if(c.tipo==='hiedra-nuevo')base=Math.round(c.monto/3);
+    const mk=(c.markup||0)/100,final=base*(1+mk);
+    const nat=c.nat||(c.tipo.startsWith('hiedra')?'ganancia':'costo');
+    const pctFondo=(c.pctFondo!=null?c.pctFondo:25)/100;
+    const esGanancia=nat==='ganancia'||nat==='gestionado';
+    const ganBruta=esGanancia?final:nat==='costo'?base*mk:0;
+    ganTotal+=ganBruta;
+    ganFondo+=ganBruta*pctFondo;
+    ganPersonal+=ganBruta*(1-pctFondo);
+    totalFinal+=final;
+    totalBase+=nat==='costo'?base:0;
+  });
+  return {ganTotal,ganFondo,ganPersonal,totalFinal,totalBase};
+}
+
+function rMes(){
+  const mes=_prMes;
+  const mesNombre=mes.toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+  document.getElementById('pr-mes-label').textContent=mesNombre.charAt(0).toUpperCase()+mesNombre.slice(1);
+
+  const evs=db('eventos',[]);
+  const evsMes=evs.filter(e=>{
+    if(!e.fecha)return false;
+    // Parse date parts directly to avoid timezone issues
+    const parts=e.fecha.split('-');
+    if(parts.length<3)return false;
+    const dYear=parseInt(parts[0]),dMonth=parseInt(parts[1])-1;
+    return dMonth===mes.getMonth()&&dYear===mes.getFullYear();
+  });
+
+  // Totals across all events this month
+  let totalGanMes=0,totalFondoMes=0,totalPersonalMes=0;
+  evsMes.forEach(e=>{
+    const g=calcGananciaEvento(e.id);
+    totalGanMes+=g.ganTotal;
+    totalFondoMes+=g.ganFondo;
+    totalPersonalMes+=g.ganPersonal;
+  });
+
+  // Stats cards
+  document.getElementById('pr-mes-stats').innerHTML=`
+    <div class="sc">
+      <div class="sl">Ganancia del mes</div>
+      <div class="sv">${fk(totalGanMes)}</div>
+      <div class="ss">${evsMes.length} evento${evsMes.length!==1?'s':''}</div>
+    </div>
+    <div class="sc" style="border-color:rgba(208,160,59,0.3)">
+      <div class="sl">Fondo Hiedra</div>
+      <div class="sv" style="color:#8a6510">${fk(totalFondoMes)}</div>
+      <div class="ss">para reinversión</div>
+    </div>
+    <div class="sc" style="border-color:rgba(58,107,53,0.25)">
+      <div class="sl">Para vos</div>
+      <div class="sv" style="color:#3a6b35">${fk(totalPersonalMes)}</div>
+      <div class="ss">ganancia personal</div>
+    </div>`;
+
+  // Per-event breakdown
+  if(!evsMes.length){
+    document.getElementById('pr-mes-eventos').innerHTML='<div style="color:var(--tm);font-size:12px;padding:10px 0">Sin eventos este mes.</div>';
+    return;
+  }
+
+  const rows=evsMes.map(e=>{
+    const g=calcGananciaEvento(e.id);
+    const d=new Date(e.fecha).toLocaleDateString('es-AR',{day:'2-digit',month:'short'});
+    const hasCostos=db('costos',[]).filter(c=>c.evId===e.id).length>0;
+    return `<div class="row" style="cursor:pointer" onclick="irAPresEvento(${e.id})">
+      <div>
+        <div class="rn">${e.nombre}</div>
+        <div class="rs">${d} · ${e.cap} pax${!hasCostos?' · <span style="color:var(--naranja)">sin presupuesto cargado</span>':''}</div>
+      </div>
+      <div style="text-align:right">
+        ${g.ganTotal>0?`
+          <div style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--borde);font-weight:500">${fmt(g.ganTotal)}</div>
+          <div style="font-size:10px;color:var(--tm)">
+            <span style="color:#8a6510">Fondo ${fmt(g.ganFondo)}</span>
+            · <span style="color:#3a6b35">Vos ${fmt(g.ganPersonal)}</span>
+          </div>
+        `:'<div style="font-size:11px;color:var(--tm);font-style:italic">Sin ítems</div>'}
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('pr-mes-eventos').innerHTML=rows;
+}
+
+function irAPresEvento(evId){
+  setPrTab('evento', document.getElementById('pr-tab-ev'));
+  setTimeout(()=>{
+    const sel=document.getElementById('pr-sel');
+    if(sel)sel.value=evId;
+    rPres();
+  },50);
+}
+
+function rPres(){
+  const sel=document.getElementById('pr-sel');
+  if(!sel)return;
+  if(sel.options.length===0)popSel('pr-sel');
+  if(!sel.value&&sel.options.length)sel.value=sel.options[0].value;
+  if(!sel.value)return;
+  const evId=parseInt(sel.value||0);
+  const ev=db('eventos',[]).find(e=>e.id===evId);
+  const pax=ev?ev.cap:30;
+  const costos=db('costos',[]).filter(c=>c.evId===evId);
+  const tl={'fijo':'fijo','pp':'por persona','hiedra-prop':'uso propio','hiedra-nuevo':'÷3 amort.'};
+  let totalBase=0,totalFinal=0,totalGanancia=0,totalFondoHiedra=0,totalPersonal=0;const ext=[],hi=[];
+  costos.forEach(c=>{
+    let base=c.monto;
+    if(c.tipo==='pp')base=c.monto*pax;
+    else if(c.tipo==='hiedra-nuevo')base=Math.round(c.monto/3);
+    const mk=(c.markup||0)/100,final=base*(1+mk);
+    // Smart default: hiedra types default to ganancia if no nat set
+    const defaultNat=c.tipo.startsWith('hiedra')?'ganancia':'costo';
+    const nat=c.nat||defaultNat;
+    const pctFondo=(c.pctFondo!=null?c.pctFondo:25)/100;
+    // Calculate ganancia bruta
+    const esGanancia=nat==='ganancia'||nat==='gestionado';
+    const ganBruta=esGanancia?final:nat==='costo'?base*mk:0;
+    // Split into personal and fondo
+    const ganFondo=ganBruta*pctFondo;
+    const ganPersonal=ganBruta*(1-pctFondo);
+    const costoReal=nat==='costo'?base:0;
+    totalBase+=costoReal;
+    totalFinal+=final;
+    totalGanancia+=ganBruta;
+    totalFondoHiedra+=ganFondo;
+    totalPersonal+=ganPersonal;
+    const isHiedra=c.tipo.startsWith('hiedra')||nat!=='costo';
+    (isHiedra?hi:ext).push({...c,base,final,ganBruta,ganFondo,ganPersonal,nat,costoReal});
+  });
+  const natLabel={'costo':'costo externo','ganancia':'ganancia directa','gestionado':'recurso gestionado','recupero':'recupero'};
+  const natColor={'costo':'rgba(184,185,165,0.2)','ganancia':'rgba(58,107,53,0.12)','gestionado':'rgba(58,107,53,0.08)','recupero':'rgba(208,160,59,0.12)'};
+  const natTextColor={'costo':'#565840','ganancia':'#3a6b35','gestionado':'#3a6b35','recupero':'#8a6510'};
+  const renderItems=items=>items.map(c=>{
+    const hasMk=(c.markup||0)>0;
+    const nat=c.nat||'costo';
+    const isGanancia=nat==='ganancia'||nat==='gestionado';
+    const isRecupero=nat==='recupero';
+    return `<div class="cost-item" style="border-left:3px solid ${natColor[nat]||'var(--bl)'}">
+      <div class="cost-item-header">
+        <div class="cost-item-left">
+          <div class="cost-item-desc">${c.desc}</div>
+          ${c.detalle?`<div class="cost-item-detalle">${c.detalle}</div>`:''}
+          <div class="cost-item-tags">
+            <span class="cost-tag">${tl[c.tipo]||c.tipo}</span>
+            <span class="cost-tag" style="background:${natColor[nat]};color:${natTextColor[nat]}">${natLabel[nat]||nat}</span>
+            ${hasMk?`<span class="cost-tag cost-tag-mk">+${c.markup}% markup</span>`:''}
+          </div>
+        </div>
+        <div class="cost-item-right">
+          ${hasMk?`<div class="cost-costo">${fmt(c.base)}</div>`:''}
+          <div class="cost-final">${fmt(c.final)}</div>
+          ${isGanancia?`<div class="cost-markup-badge" style="color:#3a6b35">✓ ganancia tuya</div>`:''}
+          ${hasMk&&!isGanancia?`<div class="cost-markup-badge">+${fmt(c.ganancia)} ganancia</div>`:''}
+          ${isRecupero?`<div class="cost-markup-badge" style="color:#8a6510">recupero</div>`:''}
+        </div>
+      </div>
+      <div style="margin-top:8px;display:flex;justify-content:flex-end">
+        <button class="btn btn-o btn-sm" onclick="openM('costo',${c.id})"><i class="ti ti-pencil" style="font-size:11px"></i> Editar</button>
+      </div>
+    </div>`;
+  }).join('');
+  const secExt=ext.length?`<div class="cost-section"><div class="cost-section-title"><span>Proveedores externos</span><span style="color:var(--borde);font-family:'Cormorant Garamond',serif;font-size:14px">${fmt(ext.reduce((s,c)=>s+c.final,0))}</span></div>${renderItems(ext)}</div>`:'';
+  const secHi=hi.length?`<div class="cost-section"><div class="cost-section-title"><span>Hiedra — Deco & Logística</span><span style="color:var(--borde);font-family:'Cormorant Garamond',serif;font-size:14px">${fmt(hi.reduce((s,c)=>s+c.final,0))}</span></div>${renderItems(hi)}</div>`:'';
+  document.getElementById('pr-costos').innerHTML=secExt+secHi||'<div style="color:var(--tm);font-size:12px;padding:10px 0">Sin ítems aún.</div>';
+  document.getElementById('pr-total').textContent=fmt(totalFinal);
+  const pp=pax>0?totalFinal/pax:0;
+  document.getElementById('r-costo').textContent=fk(totalBase);
+  document.getElementById('r-precio').textContent=fmt(pp);
+  document.getElementById('r-gan').textContent=(totalGanancia>=0?'+':'')+fk(totalGanancia);
+  if(document.getElementById('r-fondo'))document.getElementById('r-fondo').textContent=fk(totalFondoHiedra);
+  if(document.getElementById('r-personal'))document.getElementById('r-personal').textContent=fk(totalPersonal);
+  const sc=(pct)=>{const p=Math.round(pax*pct),i=pp*p,g=i-totalBase;return {p,i,g}};
+  const s1=sc(1),s7=sc(0.7),s5=sc(0.5);
+  document.getElementById('sc-pf').textContent=s1.p+' pax';document.getElementById('sc-vf').textContent=fk(s1.i);document.getElementById('sc-gf').textContent=(s1.g>=0?'+':'')+fk(s1.g);
+  document.getElementById('sc-p7').textContent=s7.p+' pax';document.getElementById('sc-v7').textContent=fk(s7.i);const g7=document.getElementById('sc-g7');g7.textContent=(s7.g>=0?'+':'')+fk(s7.g);g7.style.color=s7.g>=0?'rgba(0,0,0,0.4)':'var(--naranja)';
+  document.getElementById('sc-p5').textContent=s5.p+' pax';document.getElementById('sc-v5').textContent=fk(s5.i);document.getElementById('sc-g5').textContent=(s5.g>=0?'+':'')+fk(s5.g);
+}
+
+function rProv(){
+  const provs=db('proveedores',[]),pitems=db('pitems',[]);
+  const q=(document.getElementById('prov-search')?.value||'').toLowerCase();
+  const filtered=provs.filter(p=>{
+    const its=pitems.filter(i=>i.provId===p.id);
+    const ms=!q||(p.nombre.toLowerCase().includes(q)||p.rubro.toLowerCase().includes(q)||its.some(i=>(i.tipo||'').toLowerCase().includes(q)||(i.desc||'').toLowerCase().includes(q)));
+    const mf=_activeFilter==='todos'||(p.rubro||'').toLowerCase().includes(_activeFilter.toLowerCase())||its.some(i=>(i.rubro||'').toLowerCase().includes(_activeFilter.toLowerCase()));
+    return ms&&mf;
+  });
+  const estB=(e)=>{if(!e)return '';if(e==='Aprobado')return '<span class="pi-tag pi-tag-aprov">✓ Aprobado</span>';if(e==='En evaluación')return '<span class="pi-tag pi-tag-eval">En evaluación</span>';return '';};
+  document.getElementById('prov-list').innerHTML=filtered.map((p,idx)=>{
+    const c=PC[idx%PC.length],ini=p.nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const its=pitems.filter(i=>i.provId===p.id);
+    return `<div class="prov-card"><div class="prov-head" onclick="toggleProv(${p.id})">
+      <div class="prov-av" style="background:${c.bg};color:${c.c}">${ini}</div>
+      <div style="flex:1"><div class="prov-nm">${p.nombre} ${p.instagram?`<span style="font-size:10px;color:var(--tm);font-weight:400">${p.instagram}</span>`:''}</div>
+      <div class="prov-sub">${p.rubro}${p.contacto?' · '+p.contacto:''} · ${its.length} ítem${its.length!==1?'s':''}</div></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn btn-o btn-xs" onclick="event.stopPropagation();openM('prov',${p.id})"><i class="ti ti-pencil" style="font-size:11px"></i></button>
+        <i class="ti ti-chevron-down prov-toggle" id="tog-${p.id}"></i>
+      </div></div>
+      <div class="prov-items" id="pit-${p.id}">
+        ${its.map(it=>`<div class="prov-item-row">
+          <div class="prov-item-main">
+            <div class="prov-item-tipo">${it.tipo||it.rubro||'Ítem'}</div>
+            ${it.desc?`<div class="prov-item-desc">${it.desc.length>120?it.desc.slice(0,120)+'…':it.desc}</div>`:''}
+            ${it.aclara?`<div class="prov-item-desc" style="color:var(--mostaza)">${it.aclara}</div>`:''}
+            <div class="prov-item-tags"><span class="pi-tag">${it.rubro||'General'}</span>${estB(it.estado)}${it.movilidad?`<span class="pi-tag">&#128663; ${it.movilidad}</span>`:''}</div>
+            ${it.onda?`<div class="onda-box">&#128172; ${it.onda}</div>`:''}
+          </div>
+          <div class="prov-item-right">${it.precio>0?`<div class="pi-precio">${fmt(it.precio)}</div><div class="pi-pax">${it.minPax?it.minPax+' – ':''}${it.maxPax||''} pax</div>`:'<div style="font-size:11px;color:var(--tm)">Sin precio</div>'}</div>
+          <div class="prov-item-actions"><button class="btn btn-o btn-xs" onclick="openM('pitem',${it.id})"><i class="ti ti-pencil" style="font-size:11px"></i></button></div>
+        </div>`).join('')}
+        <div class="prov-add-item" onclick="openMPitem(${p.id})"><i class="ti ti-plus"></i> Agregar ítem a ${p.nombre}</div>
+      </div>
+    </div>`;
+  }).join('')||'<div style="color:var(--tm);font-size:12px;padding:20px 0">Sin resultados.</div>';
+}
+
+function toggleProv(id){const items=document.getElementById('pit-'+id),tog=document.getElementById('tog-'+id);if(items)items.classList.toggle('open');if(tog)tog.classList.toggle('open');}
+
+function rInv(){
+  const inv=db('inventario',[]);const cats=[...new Set(inv.map(i=>i.cat))];
+  document.getElementById('inv-c').innerHTML=cats.map(cat=>{
+    const items=inv.filter(i=>i.cat===cat);
+    return `<div class="ic">${cat}</div><div class="ig">${items.map(i=>{
+      const precio=i.estado==='amort'?i.uso:Math.round(i.costo/3);
+      const ev=Math.min(i.eventos||0,3);
+      const dots=[0,1,2].map(d=>`<div class="dot ${d<ev?'don':'doff'}"></div>`).join('');
+      return `<div class="ii"><div class="in">${i.nombre}</div><div class="id2">${i.qty} unid. · ${i.det}</div><div class="ip">${fmt(precio)}/uso</div><div class="ist ${i.estado==='amort'?'am':'na'}">${i.estado==='amort'?'✓ Amortizado':'Evento '+ev+'/3'}</div><div class="dots">${dots}</div><div class="ii-actions"><button class="btn btn-o btn-sm" style="font-size:9px" onclick="openM('inv',${i.id})"><i class="ti ti-pencil"></i> Editar</button></div></div>`;
+    }).join('')}</div>`;
+  }).join('')||'<div style="color:var(--tm);font-size:12px">Sin materiales aún.</div>';
+}
+
+let _clFilter='pendientes';
+
+function setCLFilter(f, el){
+  _clFilter=f;
+  document.querySelectorAll('.filter-chip[id^="cl-f-"]').forEach(x=>x.classList.remove('active'));
+  if(el)el.classList.add('active');
+  rCL();
+}
+
+function rCL(){
+  const evs=db('eventos',[]);
+  let tk=db('tareas',[]);
+
+  // Filter
+  if(_clFilter==='pendientes') tk=tk.filter(t=>!t.done);
+  else if(_clFilter==='listas') tk=tk.filter(t=>t.done);
+
+  // Sort: tasks with due date first (by date asc), then no due date, done tasks last
+  tk.sort((a,b)=>{
+    if(a.done && !b.done) return 1;
+    if(!a.done && b.done) return -1;
+    const av=a.vence?new Date(a.vence).getTime():Infinity;
+    const bv=b.vence?new Date(b.vence).getTime():Infinity;
+    return av-bv;
+  });
+
+  if(!tk.length){
+    document.getElementById('cl-c').innerHTML=`<div style="color:var(--tm);font-size:13px;padding:30px 0;text-align:center">
+      ${_clFilter==='listas'?'&#127881; No hay tareas completadas aún.':_clFilter==='pendientes'?'&#127881; No hay tareas pendientes. Todo listo!':'No hay tareas cargadas.'}
+    </div>`;
+    return;
+  }
+
+  const now=new Date();
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+
+  const rows=tk.map(t=>{
+    const ev=evs.find(e=>e.id===t.evId);
+    const vence=t.vence?new Date(t.vence):null;
+    const diasVence=vence?Math.ceil((vence-today)/(1000*60*60*24)):null;
+    const urgent=!t.done&&diasVence!==null&&diasVence<=3;
+    const warning=!t.done&&diasVence!==null&&diasVence<=7&&diasVence>3;
+    const vencida=!t.done&&diasVence!==null&&diasVence<0;
+
+    let venceLabel='';
+    let venceColor='var(--tm)';
+    if(vence){
+      if(vencida){venceLabel='Vencida hace '+Math.abs(diasVence)+'d';venceColor='var(--borde)';}
+      else if(diasVence===0){venceLabel='Vence HOY';venceColor='var(--naranja)';}
+      else if(diasVence===1){venceLabel='Vence mañana';venceColor='var(--naranja)';}
+      else if(urgent){venceLabel='Vence en '+diasVence+'d';venceColor='var(--naranja)';}
+      else if(warning){venceLabel='Vence en '+diasVence+'d';venceColor='var(--mostaza)';}
+      else{venceLabel=vence.toLocaleDateString('es-AR',{day:'2-digit',month:'short'});venceColor='var(--tm)';}
+    }
+
+    const subtareas=t.det?t.det.split('\n').filter(l=>l.trim()):[];
+    const subHtml=subtareas.length?`<div style="margin:5px 0 0 28px;display:flex;flex-direction:column;gap:3px">${subtareas.map(s=>`<div style="font-size:11px;color:var(--tm);display:flex;align-items:flex-start;gap:5px"><span style="color:var(--borde);flex-shrink:0;margin-top:1px">·</span><span style="${t.done?'text-decoration:line-through;opacity:0.6':''}">${s.replace(/^[•·\-]\s*/,'')}</span></div>`).join('')}</div>`:'';
+
+    const urgencyBar=vencida?'var(--borde)':urgent?'var(--naranja)':warning?'var(--mostaza)':'transparent';
+
+    return `<div style="border:1px solid var(--bl);border-left:3px solid ${urgencyBar};border-radius:2px;background:var(--surface);padding:12px 14px;margin-bottom:8px;${t.done?'opacity:0.6':''}">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div class="chk ${t.done?'done':''}" style="margin-top:2px;flex-shrink:0" onclick="togTk(${t.id})"></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px">
+            <span style="font-size:13px;font-weight:500;color:var(--text);${t.done?'text-decoration:line-through':''}">${t.texto}</span>
+            ${ev
+              ?`<span style="font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:1px;background:rgba(148,28,32,0.08);color:var(--borde)">${ev.nombre}</span>`
+              :`<span style="font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:1px;background:rgba(184,185,165,0.2);color:#565840">&#127757; Hiedra</span>`
+            }
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:10px;color:var(--tm)">${t.cat}</span>
+            <span style="font-size:10px;color:var(--tm)">· ${t.asign}</span>
+            ${venceLabel?`<span style="font-size:10px;font-weight:500;color:${venceColor}">· ${venceLabel}</span>`:''}
+          </div>
+          ${subHtml}
+        </div>
+        <button class="btn btn-o btn-xs" style="flex-shrink:0" onclick="openM('task',${t.id})"><i class="ti ti-pencil" style="font-size:11px"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('cl-c').innerHTML=rows;
+}
+
+function togTk(id){const tk=db('tareas',[]);const t=tk.find(x=>x.id===id);if(t)t.done=!t.done;sv('tareas',tk);rCL();}
+
+function toggleEvTipo(val){
+  const tipo=val||document.getElementById('ev-tipo')?.value||'privado';
+  const fields=document.getElementById('ev-abierto-fields');
+  if(fields)fields.style.display=tipo==='abierto'?'block':'none';
+}
+
+function calcCosto(){
+  const monto=parseFloat(document.getElementById('co-m')?.value)||0;
+  const mk=parseFloat(document.getElementById('co-mk')?.value)||0;
+  const tipo=document.getElementById('co-t')?.value||'fijo';
+  const pax=parseFloat(document.getElementById('co-pax')?.value)||30;
+  const nat=document.getElementById('co-nat')?.value||'costo';
+  const pctFondo=parseFloat(document.getElementById('co-fondo')?.value)||0;
+
+  let base=monto;
+  if(tipo==='pp')base=monto*pax;
+  else if(tipo==='hiedra-nuevo')base=Math.round(monto/3);
+  const final=base*(1+mk/100);
+
+  // Update final preview
+  if(document.getElementById('co-final-preview'))document.getElementById('co-final-preview').textContent=fmt(final);
+
+  // Ganancia bruta
+  const esGanancia=nat==='ganancia'||nat==='gestionado';
+  const ganBruta=esGanancia?final:nat==='costo'?base*(mk/100):0;
+  const tieneGanancia=ganBruta>0;
+
+  // Show/hide distribution box
+  const distBox=document.getElementById('co-dist-box');
+  if(distBox)distBox.style.display=tieneGanancia?'block':'none';
+
+  if(tieneGanancia){
+    const pctPersonal=Math.max(0,100-pctFondo);
+    if(document.getElementById('co-personal'))document.getElementById('co-personal').value=pctPersonal;
+    const amtFondo=ganBruta*(pctFondo/100);
+    const amtPersonal=ganBruta*(pctPersonal/100);
+    if(document.getElementById('co-gan-total'))document.getElementById('co-gan-total').textContent=fmt(ganBruta);
+    if(document.getElementById('co-fondo-amt'))document.getElementById('co-fondo-amt').textContent=fmt(amtFondo);
+    if(document.getElementById('co-personal-amt'))document.getElementById('co-personal-amt').textContent=fmt(amtPersonal);
+  }
+}
+// Keep alias for old calls
+function updateMkPreview(){calcCosto();}
+
+
+function popProvSel(selId,selectedId){
+  const provs=db('proveedores',[]);const sel=document.getElementById(selId);if(!sel)return;
+  sel.innerHTML=provs.map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('');
+  if(selectedId)sel.value=selectedId;
+}
+
+function openMPitem(provId){openM('pitem',null);setTimeout(()=>{document.getElementById('pi-prov-sel').value=provId;},10);}
+function openMNotaEv(evId){openM('nota',null);setTimeout(()=>{document.getElementById('nota-ev').value=evId;},10);}
+
+function openM(type,id){
+  _delPending=null;
+  document.querySelectorAll('.confirm-del').forEach(x=>x.classList.remove('show'));
+  if(type==='ev'){
+    const ev=id?db('eventos',[]).find(e=>e.id===id):null;
+    document.getElementById('m-ev-title').textContent=ev?'Editar Evento':'Nuevo Evento';
+    document.getElementById('ev-n').value=ev?ev.nombre:'';
+    document.getElementById('ev-f').value=ev?ev.fecha:'';
+    document.getElementById('ev-h').value=ev?ev.hora:'19:00';
+    document.getElementById('ev-l').value=ev?ev.lugar:'';
+    document.getElementById('ev-c').value=ev?ev.cap:30;
+    document.getElementById('ev-est').value=ev?ev.estado||'diseno':'diseno';
+    document.getElementById('ev-coorg').value=ev?ev.coorg||'':'';
+    document.getElementById('ev-maps').value=ev?ev.maps||'':'';
+    if(document.getElementById('ev-tipo'))document.getElementById('ev-tipo').value=ev?ev.tipoEv||'privado':'privado';
+    if(document.getElementById('ev-precio-entrada'))document.getElementById('ev-precio-entrada').value=ev?ev.precioEntrada||0:0;
+    if(document.getElementById('ev-pct-fondo'))document.getElementById('ev-pct-fondo').value=ev?ev.pctFondoEv||25:25;
+    if(document.getElementById('ev-split'))document.getElementById('ev-split').value=ev?ev.split||'50/50':'50/50';
+    toggleEvTipo(ev?ev.tipoEv||'privado':'privado');
+    document.getElementById('ev-d').value=ev?ev.desc:'';
+    document.getElementById('ev-id').value=ev?ev.id:'';
+    document.getElementById('btn-del-ev').style.display=ev?'inline-flex':'none';
+    document.getElementById('m-ev').classList.add('open');
+  } else if(type==='as'){
+    popSel('as-sel');
+    const a=id?db('asistentes',[]).find(x=>x.id===id):null;
+    document.getElementById('m-as-title').textContent=a?'Editar Asistente':'Agregar Asistente';
+    document.getElementById('as-n').value=a?a.nombre:'';document.getElementById('as-c').value=a?a.contacto:'';
+    document.getElementById('as-e').value=a?a.estado:'Invitado';document.getElementById('as-p').value=a?a.pago:'Pendiente';
+    document.getElementById('as-no').value=a?a.nota:'';document.getElementById('as-id').value=a?a.id:'';
+    document.getElementById('btn-del-as').style.display=a?'inline-flex':'none';
+    document.getElementById('m-as').classList.add('open');
+  } else if(type==='prov'){
+    const p=id?db('proveedores',[]).find(x=>x.id===id):null;
+    document.getElementById('m-prov-title').textContent=p?'Editar Proveedor':'Nuevo Proveedor';
+    document.getElementById('pv-n').value=p?p.nombre:'';document.getElementById('pv-ig').value=p?p.instagram||'':'';
+    document.getElementById('pv-r').value=p?p.rubro:'';document.getElementById('pv-c').value=p?p.contacto:'';
+    document.getElementById('pv-notas').value=p?p.notas||'':'';document.getElementById('pv-id').value=p?p.id:'';
+    document.getElementById('btn-del-prov').style.display=p?'inline-flex':'none';
+    document.getElementById('m-prov').classList.add('open');
+  } else if(type==='pitem'){
+    popProvSel('pi-prov-sel');
+    const it=id?db('pitems',[]).find(x=>x.id===id):null;
+    document.getElementById('m-pitem-title').textContent=it?'Editar ítem':'Nuevo ítem de menú';
+    document.getElementById('pi-prov-sel').value=it?it.provId:(db('proveedores',[])[0]?.id||'');
+    document.getElementById('pi-tipo').value=it?it.tipo||'':'';document.getElementById('pi-rubro').value=it?it.rubro||'Catering':'Catering';
+    document.getElementById('pi-desc').value=it?it.desc||'':'';document.getElementById('pi-aclara').value=it?it.aclara||'':'';
+    document.getElementById('pi-precio').value=it?it.precio||0:0;document.getElementById('pi-min').value=it?it.minPax||'':'';
+    document.getElementById('pi-max').value=it?it.maxPax||'':'';document.getElementById('pi-mov').value=it?it.movilidad||'':'';
+    document.getElementById('pi-cocina').value=it?it.cocina||'':'';document.getElementById('pi-estado').value=it?it.estado||'Sin evaluar':'Sin evaluar';
+    document.getElementById('pi-onda').value=it?it.onda||'':'';document.getElementById('pi-id').value=it?it.id:'';
+    document.getElementById('btn-del-pitem').style.display=it?'inline-flex':'none';
+    document.getElementById('m-pitem').classList.add('open');
+  } else if(type==='inv'){
+    const item=id?db('inventario',[]).find(x=>x.id===id):null;
+    document.getElementById('m-inv-title').textContent=item?'Editar Material':'Agregar Material';
+    document.getElementById('in-n').value=item?item.nombre:'';document.getElementById('in-cat').value=item?item.cat:'Mantelería';
+    document.getElementById('in-q').value=item?item.qty:1;document.getElementById('in-d').value=item?item.det:'';
+    document.getElementById('in-s').value=item?item.estado:'nuevo';document.getElementById('in-co').value=item?item.costo:0;
+    document.getElementById('in-u').value=item?item.uso:0;document.getElementById('in-id').value=item?item.id:'';
+    document.getElementById('btn-del-inv').style.display=item?'inline-flex':'none';
+    document.getElementById('m-inv').classList.add('open');
+  } else if(type==='task'){
+    const t=id?db('tareas',[]).find(x=>x.id===id):null;
+    document.getElementById('m-task-title').textContent=t?'Editar Tarea':'Nueva Tarea';
+    // Populate event selector
+    const evs2=db('eventos',[]);
+    const tkEvSel=document.getElementById('tk-ev-sel');
+    if(tkEvSel){
+      tkEvSel.innerHTML='<option value="">&#127757; Propia de Hiedra (sin evento)</option>'+evs2.map(e=>`<option value="${e.id}">&#128197; ${e.nombre}</option>`).join('');
+      tkEvSel.value=t?t.evId||'':'';
+    }
+    document.getElementById('tk-t').value=t?t.texto:'';
+    if(document.getElementById('tk-det'))document.getElementById('tk-det').value=t?t.det||'':'';
+    document.getElementById('tk-c').value=t?t.cat:'Organización';
+    document.getElementById('tk-a').value=t?t.asign:'Trini';document.getElementById('tk-vence').value=t?t.vence||'':'';
+    document.getElementById('tk-id').value=t?t.id:'';
+    document.getElementById('btn-del-task').style.display=t?'inline-flex':'none';
+    document.getElementById('m-task').classList.add('open');
+  } else if(type==='costo'){
+    const prSel=document.getElementById('pr-sel');
+    const evId=parseInt(prSel?.value||0);
+    const ev=db('eventos',[]).find(e=>e.id===evId);
+    const c=id?db('costos',[]).find(x=>x.id===id):null;
+    document.getElementById('m-costo-title').textContent=c?'Editar ítem':'Agregar ítem de costo';
+    document.getElementById('co-d').value=c?c.desc:'';
+    document.getElementById('co-det').value=c?c.detalle||'':'';
+    document.getElementById('co-t').value=c?c.tipo:'fijo';
+    document.getElementById('co-m').value=c?c.monto:0;
+    document.getElementById('co-mk').value=c?c.markup||0:0;
+    document.getElementById('co-pax').value=ev?ev.cap:30;
+    const defaultNatForItem=c&&c.tipo&&c.tipo.startsWith('hiedra')?'ganancia':'costo';
+    document.getElementById('co-nat').value=c?c.nat||defaultNatForItem:'costo';
+    document.getElementById('co-fondo').value=c?c.pctFondo!=null?c.pctFondo:25:25;
+    document.getElementById('co-id').value=c?c.id:'';
+    document.getElementById('btn-del-costo').style.display=c?'inline-flex':'none';
+    const provs=db('proveedores',[]);
+    const provSelEl=document.getElementById('co-prov-sel');
+    if(provSelEl)provSelEl.innerHTML='<option value="">— Seleccioná —</option>'+provs.map(p=>`<option value="${p.id}">${p.nombre}</option>`).join('');
+    const itemSelEl=document.getElementById('co-item-sel');
+    if(itemSelEl)itemSelEl.innerHTML='<option value="">— Primero elegí proveedor —</option>';
+    const prevEl=document.getElementById('co-item-preview');
+    if(prevEl)prevEl.style.display='none';
+    setCostoTab(c?'manual':'prov');
+    calcCosto();
+    document.getElementById('m-costo').classList.add('open');
+  } else if(type==='nota'){
+    const evs=db('eventos',[]);
+    const n=id?db('notas',[]).find(x=>x.id===id):null;
+    document.getElementById('m-nota-title').textContent=n?'Editar nota':'Nota rápida';
+    document.getElementById('nota-txt').value=n?n.txt:'';
+    document.getElementById('nota-ev').innerHTML='<option value="">— Sin evento —</option>'+evs.map(e=>`<option value="${e.id}">${e.nombre}</option>`).join('');
+    document.getElementById('nota-ev').value=n?n.evId||'':'';
+    document.getElementById('nota-id').value=n?n.id:'';
+    document.getElementById('btn-del-nota').style.display=n?'inline-flex':'none';
+    document.getElementById('m-nota').classList.add('open');
+  } else if(type==='mov'){
+    const m=id?db('movimientos',[]).find(x=>x.id===id):null;
+    document.getElementById('m-mov-title').textContent=m?'Editar movimiento':'Nuevo movimiento';
+    document.getElementById('mov-concepto').value=m?m.concepto:'';
+    document.getElementById('mov-monto').value=m?m.monto:0;
+    document.getElementById('mov-fecha').value=m?m.fecha||'':'';
+    document.getElementById('mov-fecha-real').value=m?m.fechaReal||'':'';
+    document.getElementById('mov-estado').value=m?m.estado||'pendiente':'pendiente';
+    document.getElementById('mov-quien').value=m?m.quien||'':'';
+    document.getElementById('mov-nota').value=m?m.nota||'':'';
+    document.getElementById('mov-id').value=m?m.id:'';
+    document.getElementById('mov-ev-id').value=m?m.evId:_currentEvId||'';
+    document.getElementById('btn-del-mov').style.display=m?'inline-flex':'none';
+    const esFondoEl=document.getElementById('mov-es-fondo');
+    if(esFondoEl)esFondoEl.checked=m?m.esFondo||false:false;
+    const tipo=m?m.tipo:'ingreso';
+    setMovTab(tipo,document.getElementById(tipo==='ingreso'?'mov-tab-ing':'mov-tab-eg'));
+    document.getElementById('m-mov').classList.add('open');
+  } else if(type==='cierre'){
+    const evId=id||_currentEvId;
+    const ev=db('eventos',[]).find(e=>e.id===evId);
+    const inv=db('inventario',[]);
+    document.getElementById('ci-pax').value=ev?ev.cap:0;
+    document.getElementById('ci-ingreso').value=0;
+    document.getElementById('ci-nota').value='';
+    document.getElementById('ci-ev-id').value=evId||'';
+    document.getElementById('ci-inv-list').innerHTML=inv.map(i=>`<label class="inv-check-item"><input type="checkbox" value="${i.id}"> ${i.nombre} (${i.qty} unid.)</label>`).join('');
+    document.getElementById('m-cierre').classList.add('open');
+  }
+}
+
+function closeM(id){document.getElementById(id).classList.remove('open');_delPending=null;document.querySelectorAll('.confirm-del').forEach(x=>x.classList.remove('show'));}
+function closeBg(e,id){if(e.target.id===id)closeM(id)}
+
+function confirmDel(type){
+  const banner=document.getElementById('del-'+type+'-confirm');
+  if(!banner)return;
+  if(banner.classList.contains('show'))execDel(type);
+  else{banner.classList.add('show');_delPending=type;}
+}
+
+function execDel(type){
+  if(type==='ev'){
+    const id=parseInt(document.getElementById('ev-id').value);
+    ['eventos','asistentes','tareas','costos'].forEach(k=>sv(k,db(k,[]).filter(x=>x.id!==id&&x.evId!==id)));
+    closeM('m-ev');rEv();rDash();
+  } else if(type==='as'){sv('asistentes',db('asistentes',[]).filter(a=>a.id!==parseInt(document.getElementById('as-id').value)));closeM('m-as');rAs();
+  } else if(type==='prov'){
+    const id=parseInt(document.getElementById('pv-id').value);
+    sv('proveedores',db('proveedores',[]).filter(p=>p.id!==id));sv('pitems',db('pitems',[]).filter(i=>i.provId!==id));closeM('m-prov');rProv();
+  } else if(type==='pitem'){sv('pitems',db('pitems',[]).filter(i=>i.id!==parseInt(document.getElementById('pi-id').value)));closeM('m-pitem');rProv();
+  } else if(type==='inv'){sv('inventario',db('inventario',[]).filter(i=>i.id!==parseInt(document.getElementById('in-id').value)));closeM('m-inv');rInv();
+  } else if(type==='task'){sv('tareas',db('tareas',[]).filter(t=>t.id!==parseInt(document.getElementById('tk-id').value)));closeM('m-task');rCL();
+  } else if(type==='costo'){sv('costos',db('costos',[]).filter(c=>c.id!==parseInt(document.getElementById('co-id').value)));closeM('m-costo');rPres();
+  } else if(type==='nota'){sv('notas',db('notas',[]).filter(n=>n.id!==parseInt(document.getElementById('nota-id').value)));closeM('m-nota');rDash();
+  } else if(type==='mov'){const mid=parseInt(document.getElementById('mov-id').value);sv('movimientos',db('movimientos',[]).filter(m=>m.id!==mid));closeM('m-mov');if(_currentEvId)rFlujo(_currentEvId);}
+}
+
+function saveEv(){
+  const evs=db('eventos',[]);
+  const id=document.getElementById('ev-id').value;
+  const data={
+    nombre:document.getElementById('ev-n').value||'Evento',
+    fecha:document.getElementById('ev-f').value||new Date().toISOString().slice(0,10),
+    hora:document.getElementById('ev-h').value||'19:00',
+    lugar:document.getElementById('ev-l').value||'',
+    maps:document.getElementById('ev-maps')?.value||'',
+    cap:parseInt(document.getElementById('ev-c').value)||30,
+    estado:document.getElementById('ev-est').value,
+    tipoEv:document.getElementById('ev-tipo')?.value||'privado',
+    precioEntrada:parseFloat(document.getElementById('ev-precio-entrada')?.value)||0,
+    coorg:document.getElementById('ev-coorg').value||'',
+    desc:document.getElementById('ev-d').value||'',
+    // Distribución de ganancia
+    distribFondo:document.getElementById('ev-dist-fondo')?.value||'',
+    distribCoorg:document.getElementById('ev-dist-coorg')?.value||'',
+    distribHiedra:document.getElementById('ev-dist-hiedra')?.value||''
+  };
+  if(id){const i=evs.findIndex(e=>e.id===parseInt(id));if(i>=0)Object.assign(evs[i],data);}
+  else evs.push({id:gid(evs),color:COLS[evs.length%5],...data});
+  sv('eventos',evs);closeM('m-ev');rEv();rDash();
+}
+
+
+function saveAs(){
+  const lista=db('asistentes',[]);const id=document.getElementById('as-id').value;const evId=parseInt(document.getElementById('as-sel').value);
+  const data={nombre:document.getElementById('as-n').value||'Sin nombre',contacto:document.getElementById('as-c').value||'',estado:document.getElementById('as-e').value,pago:document.getElementById('as-p').value,nota:document.getElementById('as-no').value||''};
+  if(id){const i=lista.findIndex(x=>x.id===parseInt(id));if(i>=0)Object.assign(lista[i],data);}else lista.push({id:gid(lista),evId,...data});
+  sv('asistentes',lista);closeM('m-as');rAs();
+}
+function saveProv(){
+  const provs=db('proveedores',[]);const id=document.getElementById('pv-id').value;
+  const data={nombre:document.getElementById('pv-n').value||'Proveedor',instagram:document.getElementById('pv-ig').value||'',rubro:document.getElementById('pv-r').value||'General',contacto:document.getElementById('pv-c').value||'',notas:document.getElementById('pv-notas').value||''};
+  if(id){const i=provs.findIndex(x=>x.id===parseInt(id));if(i>=0)Object.assign(provs[i],data);}else provs.push({id:gid(provs),...data});
+  sv('proveedores',provs);closeM('m-prov');rProv();
+}
+function savePitem(){
+  const items=db('pitems',[]);const id=document.getElementById('pi-id').value;
+  const data={provId:parseInt(document.getElementById('pi-prov-sel').value),tipo:document.getElementById('pi-tipo').value||'',rubro:document.getElementById('pi-rubro').value||'General',desc:document.getElementById('pi-desc').value||'',aclara:document.getElementById('pi-aclara').value||'',precio:parseFloat(document.getElementById('pi-precio').value)||0,minPax:document.getElementById('pi-min').value||'',maxPax:document.getElementById('pi-max').value||'',movilidad:document.getElementById('pi-mov').value||'',cocina:document.getElementById('pi-cocina').value||'',estado:document.getElementById('pi-estado').value||'',onda:document.getElementById('pi-onda').value||''};
+  if(id){const i=items.findIndex(x=>x.id===parseInt(id));if(i>=0)Object.assign(items[i],data);}else items.push({id:gid(items),...data});
+  sv('pitems',items);closeM('m-pitem');rProv();
+}
+function saveInv(){
+  const inv=db('inventario',[]);const id=document.getElementById('in-id').value;
+  const data={nombre:document.getElementById('in-n').value||'Material',cat:document.getElementById('in-cat').value,qty:parseInt(document.getElementById('in-q').value)||1,det:document.getElementById('in-d').value||'',estado:document.getElementById('in-s').value,costo:parseFloat(document.getElementById('in-co').value)||0,uso:parseFloat(document.getElementById('in-u').value)||0};
+  if(id){const i=inv.findIndex(x=>x.id===parseInt(id));if(i>=0)Object.assign(inv[i],data);}else inv.push({id:gid(inv),eventos:0,...data});
+  sv('inventario',inv);closeM('m-inv');rInv();
+}
+function saveTask(){
+  const tk=db('tareas',[]);const id=document.getElementById('tk-id').value;const evId=parseInt(document.getElementById('tk-ev-sel')?.value||0);
+  const data={texto:document.getElementById('tk-t').value||'Tarea',det:document.getElementById('tk-det')?.value||'',cat:document.getElementById('tk-c').value,asign:document.getElementById('tk-a').value||'Trini',vence:document.getElementById('tk-vence').value||''};
+  if(id){const i=tk.findIndex(x=>x.id===parseInt(id));if(i>=0)Object.assign(tk[i],data);}else tk.push({id:gid(tk),evId,done:false,...data});
+  sv('tareas',tk);closeM('m-task');rCL();
+}
+function setCostoTab(tab){
+  // Tab switching - only act if elements exist
+  const tabProv=document.getElementById('co-tab-prov');
+  const tabMan=document.getElementById('co-tab-manual');
+  const panelProv=document.getElementById('co-panel-prov');
+  const isProv=tab==='prov';
+  if(tabProv)tabProv.className=isProv?'btn btn-sm':'btn btn-o btn-sm';
+  if(tabMan)tabMan.className=isProv?'btn btn-o btn-sm':'btn btn-sm';
+  if(panelProv)panelProv.style.display=isProv?'block':'none';
+  if(!isProv){
+    const prev=document.getElementById('co-item-preview');
+    const provSel=document.getElementById('co-prov-sel');
+    const itemSel=document.getElementById('co-item-sel');
+    if(prev)prev.style.display='none';
+    if(provSel)provSel.value='';
+    if(itemSel)itemSel.innerHTML='<option value="">— Primero elegí proveedor —</option>';
+  }
+}
+
+function loadProvItems(){
+  const provSelEl=document.getElementById('co-prov-sel');
+  const sel=document.getElementById('co-item-sel');
+  if(!provSelEl||!sel)return;
+  const provId=parseInt(provSelEl.value);
+  if(!provId){sel.innerHTML='<option value="">— Primero elegí proveedor —</option>';return;}
+  const items=db('pitems',[]).filter(i=>i.provId===provId&&i.precio>0);
+  sel.innerHTML='<option value="">— Seleccioná ítem —</option>'+
+    items.map(i=>`<option value="${i.id}">${i.tipo||i.rubro} — $${Math.round(i.precio).toLocaleString('es-AR')}/pp</option>`).join('');
+  document.getElementById('co-item-preview').style.display='none';
+}
+
+function autoFillFromItem(){
+  const itemId=parseInt(document.getElementById('co-item-sel').value);
+  if(!itemId){document.getElementById('co-item-preview').style.display='none';return;}
+  const item=db('pitems',[]).find(i=>i.id===itemId);
+  if(!item)return;
+  const prov=db('proveedores',[]).find(p=>p.id===item.provId);
+  // Autofill fields
+  document.getElementById('co-d').value=(prov?prov.nombre+' — ':'')+( item.tipo||item.rubro||'Ítem');
+  document.getElementById('co-det').value=item.desc||'';
+  document.getElementById('co-m').value=item.precio||0;
+  document.getElementById('co-t').value='pp'; // precio por persona by default
+  // Show preview
+  const prev=document.getElementById('co-item-preview');
+  prev.style.display='block';
+  document.getElementById('co-item-preview-desc').textContent=item.desc||'Sin descripción';
+  const tags=[];
+  if(item.minPax||item.maxPax)tags.push(`&#128100; ${item.minPax||''}${item.maxPax?'–'+item.maxPax:''} pax`);
+  if(item.movilidad)tags.push(`&#128663; ${item.movilidad}`);
+  if(item.estado)tags.push(item.estado);
+  if(item.onda)tags.push(`&#128172; ${item.onda}`);
+  document.getElementById('co-item-preview-tags').innerHTML=tags.map(t=>`<span style="font-size:9px;background:rgba(184,185,165,0.2);padding:2px 6px;border-radius:1px;color:#565840">${t}</span>`).join('');
+  updateMkPreview();
+}
+
+function saveCosto(){
+  const c=db('costos',[]);const id=document.getElementById('co-id').value;const evId=parseInt(document.getElementById('pr-sel')?.value)||0;if(!evId){alert('Seleccioná un evento primero');return;}
+  const data={desc:document.getElementById('co-d').value||'Ítem',detalle:document.getElementById('co-det').value||'',tipo:document.getElementById('co-t').value,monto:parseFloat(document.getElementById('co-m').value)||0,markup:parseFloat(document.getElementById('co-mk').value)||0,nat:document.getElementById('co-nat')?.value||'costo'};
+  if(id){const i=c.findIndex(x=>x.id===parseInt(id));if(i>=0)Object.assign(c[i],data);}else c.push({id:gid(c),evId,...data});
+  sv('costos',c);closeM('m-costo');rPres();
+}
+function saveNota(){
+  const notas=db('notas',[]);const id=document.getElementById('nota-id').value;
+  const evId=document.getElementById('nota-ev').value?parseInt(document.getElementById('nota-ev').value):null;
+  const data={txt:document.getElementById('nota-txt').value||'',evId,fecha:new Date().toISOString()};
+  if(id){const i=notas.findIndex(x=>x.id===parseInt(id));if(i>=0)Object.assign(notas[i],data);}else notas.push({id:gid(notas),...data});
+  sv('notas',notas);closeM('m-nota');rDash();
+  if(_currentEvId)showEvDetalle(_currentEvId);
+}
+function saveCierre(){
+  const evId=parseInt(document.getElementById('ci-ev-id').value);
+  const pax=parseInt(document.getElementById('ci-pax').value)||0;
+  const ingreso=parseFloat(document.getElementById('ci-ingreso').value)||0;
+  const nota=document.getElementById('ci-nota').value||'';
+  // Update inventory usage
+  const checked=[...document.querySelectorAll('#ci-inv-list input:checked')].map(x=>parseInt(x.value));
+  const inv=db('inventario',[]);
+  checked.forEach(invId=>{const item=inv.find(i=>i.id===invId);if(item)item.eventos=(item.eventos||0)+1;});
+  sv('inventario',inv);
+  // Save cierre
+  const cierres=db('cierres',[]).filter(c=>c.evId!==evId);
+  cierres.push({evId,pax,ingreso,nota,fecha:new Date().toISOString()});
+  sv('cierres',cierres);
+  // Mark event as closed
+  const evs=db('eventos',[]);const ev=evs.find(e=>e.id===evId);if(ev)ev.estado='cerrado';sv('eventos',evs);
+  closeM('m-cierre');
+  if(_currentEvId===evId)showEvDetalle(evId);else rEv();rDash();
+}
+
+initData();
+rDash();
+</script>
+</div>
+</body>
+</html} else if(type==='ev'){
+    const ev=id?db('eventos',[]).find(e=>e.id===id):null;
+    document.getElementById('m-ev-title').textContent=ev?'Editar Evento':'Nuevo Evento';
+    document.getElementById('ev-n').value=ev?ev.nombre:'';
+    document.getElementById('ev-f').value=ev?ev.fecha:'';
+    document.getElementById('ev-h').value=ev?ev.hora:'19:00';
+    document.getElementById('ev-l').value=ev?ev.lugar:'';
+    document.getElementById('ev-maps').value=ev?ev.maps||'':'';
+    document.getElementById('ev-c').value=ev?ev.cap:30;
+    document.getElementById('ev-est').value=ev?ev.estado||'diseno':'diseno';
+    if(document.getElementById('ev-tipo'))document.getElementById('ev-tipo').value=ev?ev.tipoEv||'privado':'privado';
+    if(document.getElementById('ev-precio-entrada'))document.getElementById('ev-precio-entrada').value=ev?ev.precioEntrada||0:0;
+    document.getElementById('ev-coorg').value=ev?ev.coorg||'':'';
+    if(document.getElementById('ev-dist-fondo'))document.getElementById('ev-dist-fondo').value=ev?ev.distribFondo||'':'';
+    if(document.getElementById('ev-dist-coorg'))document.getElementById('ev-dist-coorg').value=ev?ev.distribCoorg||'':'';
+    if(document.getElementById('ev-dist-hiedra'))document.getElementById('ev-dist-hiedra').value=ev?ev.distribHiedra||'':'';
+    document.getElementById('ev-d').value=ev?ev.desc:'';
+    if(document.getElementById('ev-dist-fondo'))document.getElementById('ev-dist-fondo').value=ev?ev.distribFondo||'':'';
+    if(document.getElementById('ev-dist-coorg'))document.getElementById('ev-dist-coorg').value=ev?ev.distribCoorg||'':'';
+    if(document.getElementById('ev-dist-hiedra'))document.getElementById('ev-dist-hiedra').value=ev?ev.distribHiedra||'':'';
+    toggleEvTipo(ev?ev.tipoEv||'privado':'privado');
+    document.getElementById('ev-id').value=ev?ev.id:'';
+    document.getElementById('btn-del-ev').style.display=ev?'inline-flex':'none';
+    document.getElementById('m-ev').classList.add('open');>
